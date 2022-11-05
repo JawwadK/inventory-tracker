@@ -6,6 +6,7 @@ import SignUp from "./components/SignUp";
 import AuthenticationPage from "./pages/AuthenticationPage";
 import SearchPage from "./pages/SearchPage";
 import { useFirestore } from "./contexts/FirestoreContext";
+import NavBar from "./components/NavBar";
 
 function App() {
 	const { user } = useFirestore();
@@ -21,6 +22,7 @@ function App() {
 					element={
 						user ? (
 							<>
+								<NavBar />
 								<SearchPage />
 							</>
 						) : (

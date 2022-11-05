@@ -19,14 +19,16 @@ export default function SignUp() {
 
 	return (
 		<div>
-			<h1>Sign Up</h1>
-			<label htmlFor="name">Full Name</label>
-			<input id="name" name="name" type="text" placeholder="Enter your full name" required value={name} onChange={(e) => setName(e.target.value)} />
-			<label htmlFor="email">E-mail</label>
-			<input id="email" name="email" type="email" placeholder="Enter your email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-			<label htmlFor="password">Password</label>
-			<input id="password" name="password" type="password" placeholder="Enter your password" required value={password} onChange={(e) => setPassword(e.target.value)} />
-			<button onClick={handleSubmit}>Sign Up</button>
+			<form onSubmit={handleSubmit}>
+				<h1>Sign Up</h1>
+				<label htmlFor="name">Full Name</label>
+				<input id="name" name="name" type="text" placeholder="Enter your full name" required value={name} onChange={(e) => setName(e.target.value)} />
+				<label htmlFor="email">E-mail</label>
+				<input id="email" name="email" type="email" placeholder="Enter your email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+				<label htmlFor="password">Password</label>
+				<input id="password" name="password" type="password" placeholder="Enter your password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+				<button>Sign Up</button>
+			</form>
 			<div>
 				Already have an account?
 				<Link to="/login" style={{ textDecoration: "none" }}>

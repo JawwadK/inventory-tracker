@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { db } from "../utilities/firebase";
-import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+import { query, doc, where, collection, getDoc, getDocs, setDoc, deleteDoc } from "firebase/firestore";
 
 const FirestoreContext = createContext();
 
@@ -17,7 +17,7 @@ export function FirestoreProvider({ children }) {
 		const docSnap = await getDoc(docRef);
 
 		if (docSnap.exists()) {
-			console.log("Document data:", docSnap.data());
+			console.log("User data:", docSnap.data());
 			setUser({ ...docSnap.data(), id: docSnap.id });
 		} else {
 			// doc.data() will be undefined in this case
@@ -30,29 +30,30 @@ export function FirestoreProvider({ children }) {
 		localStorage.clear();
 	}
 
+	function randomString() {
+		var length = 32;
+		var chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		var result = "";
+		for (var i = length; i > 0; --i) result += chars[Math.round(Math.random() * (chars.length - 1))];
+		return result;
+	}
+
 	async function register(name, email, password) {
 		const docRef = doc(db, "users", email);
 		const docSnap = await getDoc(docRef);
+		const uid = randomString();
 
 		if (!docSnap.exists()) {
 			await setDoc(docRef, {
 				name: name,
 				password: password,
 				email: email,
+				uid: uid,
 				photoURL: `https://avatars.dicebear.com/api/initials/${name?.trim()}.svg`,
 			});
 			alert("registered successfully");
 			await fetchUser(email);
-			localStorage.setItem(
-				"user",
-				JSON.stringify({
-					name: name,
-					id: email,
-					password: password,
-					email: email,
-					photoURL: `https://avatars.dicebear.com/api/initials/${name?.trim()}.svg`,
-				})
-			);
+			localStorage.setItem("user", uid);
 		} else {
 			// User already exists
 			console.log("User already exists. Please log in.");
@@ -66,15 +67,15 @@ export function FirestoreProvider({ children }) {
 		if (docSnap.exists()) {
 			if (docSnap.data().password === password) {
 				setUser({ ...docSnap.data(), id: docSnap.id });
-				localStorage.setItem("user", JSON.stringify({ ...docSnap.data(), id: docSnap.id }));
+				localStorage.setItem("user", docSnap.data().uid);
 				alert("logged in successfully");
 			} else {
 				// Password is incorrect
-				console.log("Password is incorrect. Please try again.");
+				alert("Password is incorrect. Please try again.");
 			}
 		} else {
 			// User does not exists (still show password incorrect message)
-			console.log("Password is incorrect. Please try again.");
+			alert("Password is incorrect. Please try again.");
 		}
 	}
 
@@ -85,19 +86,24 @@ export function FirestoreProvider({ children }) {
 		if (docSnap.exists()) {
 			await deleteDoc(docRef);
 		} else {
-			// User already exists
+			// User does not exist
 			console.log("User does not exist or is already deleted.");
 		}
 	}
 
 	useEffect(() => {
-		const loggedInUser = localStorage.getItem("user");
-		console.log(loggedInUser);
-		if (loggedInUser) {
-			const foundUser = JSON.parse(loggedInUser);
-			setUser(foundUser);
+		async function getUserFromLocalStorage() {
+			const user = localStorage.getItem("user");
+			if (user) {
+				const userRef = query(collection(db, "users"), where("uid", "==", user));
+				const userSnap = await getDocs(userRef);
+				userSnap.forEach((doc) => {
+					setUser({ ...doc.data(), id: doc.id });
+				});
+			}
+			setLoading(false);
 		}
-		setLoading(false);
+		getUserFromLocalStorage();
 	}, []);
 
 	const value = {
