@@ -10,7 +10,7 @@ export function useFirestore() {
 
 export function FirestoreProvider({ children }) {
 	const [loading, setLoading] = useState(true);
-	const [user, setUser] = useState({});
+	const [user, setUser] = useState(null);
 
 	async function fetchUser(email) {
 		const docRef = doc(db, "users", email);
@@ -25,17 +25,34 @@ export function FirestoreProvider({ children }) {
 		}
 	}
 
+	async function logout() {
+		setUser(null);
+		localStorage.clear();
+	}
+
 	async function register(name, email, password) {
 		const docRef = doc(db, "users", email);
 		const docSnap = await getDoc(docRef);
 
 		if (!docSnap.exists()) {
-			setDoc(docRef, {
+			await setDoc(docRef, {
 				name: name,
 				password: password,
 				email: email,
 				photoURL: `https://avatars.dicebear.com/api/initials/${name?.trim()}.svg`,
 			});
+			alert("registered successfully");
+			await fetchUser(email);
+			localStorage.setItem(
+				"user",
+				JSON.stringify({
+					name: name,
+					id: email,
+					password: password,
+					email: email,
+					photoURL: `https://avatars.dicebear.com/api/initials/${name?.trim()}.svg`,
+				})
+			);
 		} else {
 			// User already exists
 			console.log("User already exists. Please log in.");
@@ -49,6 +66,8 @@ export function FirestoreProvider({ children }) {
 		if (docSnap.exists()) {
 			if (docSnap.data().password === password) {
 				setUser({ ...docSnap.data(), id: docSnap.id });
+				localStorage.setItem("user", JSON.stringify({ ...docSnap.data(), id: docSnap.id }));
+				alert("logged in successfully");
 			} else {
 				// Password is incorrect
 				console.log("Password is incorrect. Please try again.");
@@ -64,12 +83,22 @@ export function FirestoreProvider({ children }) {
 		const docSnap = await getDoc(docRef);
 
 		if (docSnap.exists()) {
-			deleteDoc(docRef);
+			await deleteDoc(docRef);
 		} else {
 			// User already exists
 			console.log("User does not exist or is already deleted.");
 		}
 	}
+
+	useEffect(() => {
+		const loggedInUser = localStorage.getItem("user");
+		console.log(loggedInUser);
+		if (loggedInUser) {
+			const foundUser = JSON.parse(loggedInUser);
+			setUser(foundUser);
+		}
+		setLoading(false);
+	}, []);
 
 	const value = {
 		user,
@@ -78,6 +107,7 @@ export function FirestoreProvider({ children }) {
 		fetchUser,
 		deleteUser,
 		login,
+		logout,
 	};
 
 	return <FirestoreContext.Provider value={value}>{!loading && children}</FirestoreContext.Provider>;
