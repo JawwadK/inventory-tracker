@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { db } from "../utilities/firebase";
-import { query, doc, where, collection, getDoc, getDocs, setDoc, deleteDoc } from "firebase/firestore";
+import { query, doc, where, collection, getDoc, updateDoc, getDocs, setDoc, deleteDoc } from "firebase/firestore";
 
 const FirestoreContext = createContext();
 
@@ -79,19 +79,34 @@ export function FirestoreProvider({ children }) {
 		}
 	}
 
-	async function deleteUser(email) {
-		const docRef = doc(db, "users", email);
+	async function deleteUser() {
+		const docRef = doc(db, "users", user.email);
 		const docSnap = await getDoc(docRef);
 
 		if (docSnap.exists()) {
-			const confirmDelete = window.confirm("Are you sure you want to delete your account?. This will delete all your data. This action cannot be undone.");
-			if (confirmDelete) {
-				await deleteDoc(docRef);
-				logout();
-			}
+			await deleteDoc(docRef);
+			logout();
+			alert("Account deleted successfully");
 		} else {
 			// User does not exist
 			console.log("User does not exist or is already deleted.");
+		}
+	}
+
+	async function updateUserInfo(name, email, photoURL) {
+		const docRef = doc(db, "users", user.email);
+		const docSnap = await getDoc(docRef);
+
+		if (docSnap.exists()) {
+			await updateDoc(docRef, {
+				name: name,
+				email: email,
+				photoURL: photoURL,
+			});
+			alert("Account information updated successfully");
+		} else {
+			// User does not exist
+			console.log("User does not exist. Cant update user information.");
 		}
 	}
 
@@ -115,6 +130,7 @@ export function FirestoreProvider({ children }) {
 		setUser,
 		register,
 		fetchUser,
+		updateUserInfo,
 		deleteUser,
 		login,
 		logout,

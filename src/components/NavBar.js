@@ -1,7 +1,7 @@
 import { Fragment, useState } from "react";
 import { Link } from "react-router-dom";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon, Cog6ToothIcon, UserCircleIcon, ArrowLeftOnRectangleIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon, Cog6ToothIcon, QuestionMarkCircleIcon, ArrowLeftOnRectangleIcon } from "@heroicons/react/24/outline";
 
 import { useFirestore } from "../contexts/FirestoreContext";
 
@@ -75,17 +75,17 @@ export default function NavBar() {
 										leaveFrom="transform opacity-100 scale-100"
 										leaveTo="transform opacity-0 scale-95"
 									>
-										<Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md divide-y bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+										<Menu.Items className="absolute w-auto right-0 z-10 mt-2 origin-top-right rounded-md divide-y bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
 											<div className="py-1 text-center">
-												<p className="font-bold m-0">{user?.name}</p>
-												<p className="grey text-gray-600 m-0">{user?.email}</p>
+												<p className="font-bold m-0 ">{user?.name}</p>
+												<p className="grey text-gray-600 m-0 px-2">{user?.email}</p>
 											</div>
 											<div className="py-1">
 												<Menu.Item>
 													{({ active }) => (
-														<Link to="/accounts" className={classNames(active ? "bg-gray-100" : "", "flex px-4 py-2 text-sm gap-1 text-gray-700 no-underline")}>
-															<UserCircleIcon className="block h-5 w-5" />
-															Your Profile
+														<Link to="/help" className={classNames(active ? "bg-gray-100" : "", "flex px-4 py-2 text-sm gap-1 text-gray-700 no-underline")}>
+															<QuestionMarkCircleIcon className="block h-5 w-5" />
+															Help
 														</Link>
 													)}
 												</Menu.Item>
@@ -119,7 +119,7 @@ export default function NavBar() {
 						<div className="space-y-1 px-2 pt-2 pb-3">
 							<Disclosure.Button
 								as={Link}
-								href="/"
+								to="/"
 								className={classNames(
 									selected ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white",
 									"block px-3 py-2 rounded-md text-base font-medium no-underline"
@@ -130,7 +130,7 @@ export default function NavBar() {
 							</Disclosure.Button>
 							<Disclosure.Button
 								as={Link}
-								href="/administration"
+								to="/administration"
 								className={classNames(
 									selected ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white",
 									"block px-3 py-2 rounded-md text-base font-medium no-underline"
