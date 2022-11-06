@@ -8,6 +8,7 @@ import SearchPage from "./pages/SearchPage";
 import { useFirestore } from "./contexts/FirestoreContext";
 import NavBar from "./components/NavBar";
 import AccountManagementPage from "./pages/AccountManagementPage";
+import AdministrationPage from "./pages/AdministrationPage";
 
 function App() {
 	const { user } = useFirestore();
@@ -24,6 +25,19 @@ function App() {
 							<>
 								<NavBar />
 								<SearchPage />
+							</>
+						) : (
+							<Navigate to="/login" replace />
+						)
+					}
+				/>
+				<Route
+					path="/administration"
+					element={
+						user ? (
+							<>
+								<NavBar />
+								<AdministrationPage />
 							</>
 						) : (
 							<Navigate to="/login" replace />

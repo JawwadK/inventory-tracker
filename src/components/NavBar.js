@@ -9,8 +9,13 @@ export default function NavBar() {
 		<div style={{ maxHeight: "80px", display: "flex", justifyContent: "space-between" }}>
 			<h1>Inventory Tracker</h1>
 			<div>
-				<Link style={{ marginRight: "20px" }} to="/">Search</Link>
-				<Link to="accounts/edit">Account Management</Link>
+				<Link style={{ marginRight: "20px" }} to="/">
+					Search
+				</Link>
+				<Link style={{ marginRight: "20px" }} to="/accounts/edit">
+					Account Management
+				</Link>
+				<Link to="/administration">Administration</Link>
 			</div>
 			<div>
 				<div>{user?.name}</div>
