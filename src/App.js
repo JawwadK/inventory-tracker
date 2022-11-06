@@ -9,6 +9,7 @@ import { useFirestore } from "./contexts/FirestoreContext";
 import NavBar from "./components/NavBar";
 import AccountManagementPage from "./pages/AccountManagementPage";
 import AdministrationPage from "./pages/AdministrationPage";
+import Footer from "./components/Footer";
 
 function App() {
 	const { user } = useFirestore();
@@ -25,6 +26,7 @@ function App() {
 							<>
 								<NavBar />
 								<SearchPage />
+								<Footer />
 							</>
 						) : (
 							<Navigate to="/login" replace />
@@ -38,6 +40,7 @@ function App() {
 							<>
 								<NavBar />
 								<AdministrationPage />
+								<Footer />
 							</>
 						) : (
 							<Navigate to="/login" replace />
