@@ -1,21 +1,13 @@
 import { Fragment, useState } from "react";
 import { Link } from "react-router-dom";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon, Cog6ToothIcon, UserCircleIcon, ArrowLeftOnRectangleIcon } from "@heroicons/react/24/outline";
 
 import { useFirestore } from "../contexts/FirestoreContext";
-import { FaUserEdit, FaCog, FaSignOutAlt, FaQuestionCircle } from "react-icons/fa";
 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
 }
-
-const navigation = [
-	{ name: "Search", href: "#", current: true },
-	{ name: "Adminstration", href: "#", current: false },
-	{ name: "Projects", href: "#", current: false },
-	{ name: "Calendar", href: "#", current: false },
-];
 
 export default function NavBar() {
 	const { user, logout } = useFirestore();
@@ -41,13 +33,6 @@ export default function NavBar() {
 								</div>
 							</div>
 							<div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-								{/* <button
-									type="button"
-									className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-								>
-									<span className="sr-only">View notifications</span>
-									<BellIcon className="h-6 w-6" aria-hidden="true" />
-								</button> */}
 								<div className="hidden sm:ml-6 sm:block">
 									<div className="flex space-x-2">
 										<Link
@@ -98,14 +83,16 @@ export default function NavBar() {
 											<div className="py-1">
 												<Menu.Item>
 													{({ active }) => (
-														<Link to="/accounts" className={classNames(active ? "bg-gray-100" : "", "block px-4 py-2 text-sm text-gray-700 no-underline")}>
+														<Link to="/accounts" className={classNames(active ? "bg-gray-100" : "", "flex px-4 py-2 text-sm gap-1 text-gray-700 no-underline")}>
+															<UserCircleIcon className="block h-5 w-5" />
 															Your Profile
 														</Link>
 													)}
 												</Menu.Item>
 												<Menu.Item>
 													{({ active }) => (
-														<Link to="/accounts/edit" className={classNames(active ? "bg-gray-100" : "", "block px-4 py-2 text-sm text-gray-700 no-underline")}>
+														<Link to="/accounts/edit" className={classNames(active ? "bg-gray-100" : "", "flex px-4 py-2 text-sm gap-1 text-gray-700 no-underline")}>
+															<Cog6ToothIcon className="block h-5 w-5" />
 															Settings
 														</Link>
 													)}
@@ -114,7 +101,8 @@ export default function NavBar() {
 											<div className="py-1">
 												<Menu.Item>
 													{({ active }) => (
-														<Link onClick={logout} className={classNames(active ? "bg-gray-100" : "", "block px-4 py-2 text-sm text-gray-700 no-underline")}>
+														<Link onClick={logout} className={classNames(active ? "bg-gray-100" : "", "flex px-4 py-2 text-sm gap-1 text-gray-700 no-underline")}>
+															<ArrowLeftOnRectangleIcon className="block h-5 w-5" />
 															Sign out
 														</Link>
 													)}
@@ -156,18 +144,5 @@ export default function NavBar() {
 				</>
 			)}
 		</Disclosure>
-
-		// 	<nav className="bg-gray-800 relative flex h-16 items-center justify-between">
-		// 		<div>
-		// 			<h1>Inventory Tracker</h1>
-		// 		</div>
-		// 		<div className="nav-bar">
-		// 			<Link to="/">Search</Link>
-		// 			<Link to="/accounts/edit">Account Management</Link>
-		// 			<Link to="/administration">Administration</Link>
-		// 			<div>{user?.name}</div>
-		// 			<img className="profile" alt="logo" src={user?.photoURL} />
-		// 		</div>
-		// 	</nav>
 	);
 }

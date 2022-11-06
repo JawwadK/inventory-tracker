@@ -71,11 +71,11 @@ export function FirestoreProvider({ children }) {
 				alert("logged in successfully");
 			} else {
 				// Password is incorrect
-				alert("Password is incorrect. Please try again.");
+				alert("Email or Password is incorrect. Please try again.");
 			}
 		} else {
 			// User does not exists (still show password incorrect message)
-			alert("Password is incorrect. Please try again.");
+			alert("Email or Password is incorrect. Please try again.");
 		}
 	}
 
