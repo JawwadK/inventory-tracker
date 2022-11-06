@@ -25,7 +25,7 @@ export function FirestoreProvider({ children }) {
 		}
 	}
 
-	async function logout() {
+	function logout() {
 		setUser(null);
 		localStorage.clear();
 	}
@@ -84,7 +84,11 @@ export function FirestoreProvider({ children }) {
 		const docSnap = await getDoc(docRef);
 
 		if (docSnap.exists()) {
-			await deleteDoc(docRef);
+			const confirmDelete = window.confirm("Are you sure you want to delete your account?. This will delete all your data. This action cannot be undone.");
+			if (confirmDelete) {
+				await deleteDoc(docRef);
+				logout();
+			}
 		} else {
 			// User does not exist
 			console.log("User does not exist or is already deleted.");

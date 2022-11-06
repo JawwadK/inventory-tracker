@@ -7,10 +7,10 @@ import AuthenticationPage from "./pages/AuthenticationPage";
 import SearchPage from "./pages/SearchPage";
 import { useFirestore } from "./contexts/FirestoreContext";
 import NavBar from "./components/NavBar";
+import AccountManagementPage from "./pages/AccountManagementPage";
 
 function App() {
 	const { user } = useFirestore();
-	console.log(user);
 
 	return (
 		<BrowserRouter>
@@ -26,7 +26,20 @@ function App() {
 								<SearchPage />
 							</>
 						) : (
-							<Navigate to="/signup" replace />
+							<Navigate to="/login" replace />
+						)
+					}
+				/>
+				<Route
+					path="/accounts/edit"
+					element={
+						user ? (
+							<>
+								<NavBar />
+								<AccountManagementPage />
+							</>
+						) : (
+							<Navigate to="/login" replace />
 						)
 					}
 				/>
