@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import imageCompression from "browser-image-compression";
 
 export default function AddProduct() {
-	const [name, getName] = useState("");
-	const [upc, getUpc] = useState("");
-	const [description, getDescription] = useState("");
+	const [name, setName] = useState("");
+	const [upc, setUpc] = useState("");
+	const [description, setDescription] = useState("");
 
 	return (
 		<div>
@@ -12,11 +12,11 @@ export default function AddProduct() {
 				<h1>Add A Product</h1>
 				<input id="productImage" type="file" />
 				<p>Name</p>
-				<input id="name" type="text" />
+				<input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} />
 				<p>UPC Code</p>
-				<input id="upcCode" type="text" />
+				<input id="upcCode" type="text" value={upc} onChange={(e) => setUpc(e.target.value)} />
 				<p>Description</p>
-				<textarea id="description" />
+				<textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} />
 				<br />
 				<button>Add Product</button>
 			</form>
