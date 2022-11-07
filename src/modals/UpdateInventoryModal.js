@@ -103,6 +103,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 
 											<div className="grid grid-cols-6 gap-6 mt-4">
 												<div className="col-span-6">
+													{/* TODO: Make into component */}
 													<Combobox value={selectedStore} onChange={setSelectedStore}>
 														{({ open }) => (
 															<>
@@ -115,9 +116,11 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 																		displayValue={(store) => store?.name}
 																		className="cursor-text relative w-full rounded-md border border-gray-300 bg-white py-2 pl-11 text-left shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
 																	></Combobox.Input>
-																	<span className="flex items-center absolute inset-y-0 left-0">
-																		<img src={filteredStores[0]?.image} alt="" className="h-6 w-6 ml-3 flex-shrink-0 rounded-full" />
-																	</span>
+																	{queryStore && (
+																		<span className="flex items-center absolute inset-y-0 left-0">
+																			<img src={filteredStores[0]?.image} alt="" className="h-6 w-6 ml-3 flex-shrink-0 rounded-md" />
+																		</span>
+																	)}
 																	<Transition show={open} as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
 																		<Combobox.Options className="absolute z-20 mt-1 max-h-40 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
 																			{filteredStores.map((store) => (
@@ -126,7 +129,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 																					className={({ active }) =>
 																						classNames(
 																							active ? "text-white bg-indigo-600" : "text-gray-900",
-																							"relative cursor-default select-none py-2 pl-3 pr-9"
+																							"relative cursor-pointer select-none py-2 pl-3 pr-9"
 																						)
 																					}
 																					value={store}
@@ -134,7 +137,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 																					{({ selectedStore, active }) => (
 																						<>
 																							<div className="flex items-center">
-																								<img src={store?.image} alt="" className="h-6 w-6 flex-shrink-0 rounded-full" />
+																								<img src={store?.image} alt="" className="h-6 w-6 flex-shrink-0 rounded-md" />
 																								<span className={classNames(selectedStore ? "font-semibold" : "font-normal", "ml-3 block truncate")}>
 																									{store?.name}
 																								</span>
@@ -163,6 +166,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 												</div>
 
 												<div className="col-span-6">
+													{/* TODO: Make into component */}
 													<Combobox value={selectedProduct} onChange={setSelectedProduct}>
 														{({ open }) => (
 															<>
@@ -176,9 +180,11 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 																		displayValue={(product) => product?.name}
 																		className="cursor-text relative w-full rounded-md border border-gray-300 bg-white py-2 pl-12 text-left shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
 																	></Combobox.Input>
-																	<span className="flex items-center absolute inset-y-0 left-0">
-																		<img src={filteredProducts[0]?.image} alt="" className="h-6 w-6 ml-3 flex-shrink-0 rounded-full" />
-																	</span>
+																	{queryProduct && (
+																		<span className="flex items-center absolute inset-y-0 left-0">
+																			<img src={filteredProducts[0]?.image} alt="" className="h-6 w-6 ml-3 flex-shrink-0 rounded-md" />
+																		</span>
+																	)}
 																	<Transition show={open} as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
 																		<Combobox.Options className="absolute z-20 mt-1 max-h-40 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
 																			{filteredProducts.map((product) => (
@@ -187,7 +193,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 																					className={({ active }) =>
 																						classNames(
 																							active ? "text-white bg-indigo-600" : "text-gray-900",
-																							"relative cursor-default select-none py-2 pl-3 pr-9"
+																							"relative cursor-pointer select-none py-2 pl-3 pr-9"
 																						)
 																					}
 																					value={product}
@@ -195,7 +201,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 																					{({ selectedProduct, active }) => (
 																						<>
 																							<div className="flex items-center">
-																								<img src={product?.image} alt="" className="h-6 w-6 flex-shrink-0 rounded-full" />
+																								<img src={product?.image} alt="" className="h-6 w-6 flex-shrink-0 rounded-md" />
 																								<span className={classNames(selectedProduct ? "font-semibold" : "font-normal", "ml-3 block truncate")}>
 																									{product?.name}
 																								</span>
