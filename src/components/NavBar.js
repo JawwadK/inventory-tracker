@@ -11,6 +11,7 @@ function classNames(...classes) {
 
 export default function NavBar() {
 	const { user, logout } = useFirestore();
+	// eslint-disable-next-line no-unused-vars
 	const { selected, setSelected } = useState(false);
 
 	return (
