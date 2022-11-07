@@ -22,6 +22,10 @@ export default function AccountManagementPage() {
 		await updateUserInfo(name, email, photoURL);
 	}
 
+	useEffect(() => {
+		document.title = `Account Management | Inventory Tracker`;
+	}, []);
+
 	return (
 		<>
 			<Header title="Account Management" />

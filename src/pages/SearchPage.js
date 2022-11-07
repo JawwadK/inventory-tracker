@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { CheckIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Combobox, Transition } from "@headlessui/react";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../utilities/firebase";
 import RecommendedProducts from "../components/RecommendedProducts";
 
@@ -19,15 +19,19 @@ export default function SearchPage() {
 			  });
 
 	useEffect(() => {
-		onSnapshot(collection(db, `products`), (snapshot) => {
+		onSnapshot(query(collection(db, `products`), orderBy("name", "asc")), (snapshot) => {
 			setProducts(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
 		});
 	}, []);
 
 	useEffect(() => {
-		onSnapshot(collection(db, `inventory`), (snapshot) => {
+		onSnapshot(query(collection(db, `inventory`), orderBy("timestamp", "desc"), limit(4)), (snapshot) => {
 			setInventory(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
 		});
+	}, []);
+
+	useEffect(() => {
+		document.title = `Search | Inventory Tracker`;
 	}, []);
 
 	function classNames(...classes) {

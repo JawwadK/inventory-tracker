@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import AddProductModal from "../modals/AddProductModal";
 import AddStoreModal from "../modals/AddStoreModal";
@@ -8,6 +8,10 @@ export default function AdministrationPage() {
 	const [addStoreModalOpen, setAddStoreModalOpen] = useState(false);
 	const [addProductModalOpen, setAddProductModalOpen] = useState(false);
 	const [addInventoryModalOpen, setAddInventoryModalOpen] = useState(false);
+
+	useEffect(() => {
+		document.title = `Administration | Inventory Tracker`;
+	}, []);
 
 	return (
 		<>

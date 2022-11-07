@@ -9,6 +9,7 @@ import NavBar from "./components/NavBar";
 import AccountManagementPage from "./pages/AccountManagementPage";
 import AdministrationPage from "./pages/AdministrationPage";
 import Footer from "./components/Footer";
+import ProductPage from "./pages/ProductPage";
 
 function App() {
 	const { user } = useFirestore();
@@ -40,6 +41,19 @@ function App() {
 								<NavBar />
 								<AdministrationPage />
 								<Footer />
+							</>
+						) : (
+							<Navigate to="/login" replace />
+						)
+					}
+				/>
+				<Route
+					path="/product/:productid"
+					element={
+						user ? (
+							<>
+								<NavBar />
+								<ProductPage />
 							</>
 						) : (
 							<Navigate to="/login" replace />
