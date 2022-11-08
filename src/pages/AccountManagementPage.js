@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import imageCompression from "browser-image-compression";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import Header from "../components/Header";
 import { useFirestore } from "../contexts/FirestoreContext";
 import DeleteAccountModal from "../modals/DeleteAccountModal";
+import { storage } from "../utilities/firebase";
 
 export default function AccountManagementPage() {
 	const { user, updateUserInfo, updatePassword, logout } = useFirestore();
@@ -11,6 +14,8 @@ export default function AccountManagementPage() {
 	const [password, setPassword] = useState("");
 	const [newPassword, setNewPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
+	const [file, setFile] = useState("");
+	const [fileName, setFileName] = useState("");
 	const [photoURL, setPhotoURL] = useState("");
 	const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
 
@@ -44,9 +49,77 @@ export default function AccountManagementPage() {
 		setConfirmPassword("");
 	}
 
+	const handleFileChange = async (e) => {
+		const options = {
+			maxSizeMB: 1,
+			maxWidthOrHeight: 1920,
+			useWebWorker: true,
+		};
+
+		const compressedFile = await imageCompression(e.target.files[0], options);
+
+		setFile(compressedFile);
+		var filePath = e.target.value.toString().split("\\");
+		var name = filePath[filePath.length - 1];
+		if (name.length > 20) name = name.split(".")[0].substring(0, 20) + "...." + name.split(".")[name.split(".").length - 1];
+		setFileName(`${name}`);
+	};
+
 	async function handleProfileUpdate(e) {
 		e.preventDefault();
-		await updateUserInfo(name, email, photoURL);
+
+		const storageRef = ref(storage, `profiles/${Math.floor(Math.random() * (9999 - 1000)) + 1000}-${fileName}`);
+		const uploadTask = file && uploadBytesResumable(storageRef, file);
+
+		file
+			? uploadTask.on(
+					"state_changed",
+					(snapshot) => {
+						// Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+						const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+						console.log("Upload is " + progress + "% done");
+						switch (snapshot.state) {
+							case "paused":
+								console.log("Upload is paused");
+								break;
+							case "running":
+								console.log("Upload is running");
+								break;
+							default:
+								break;
+						}
+					},
+					(error) => {
+						// A full list of error codes is available at
+						// https://firebase.google.com/docs/storage/web/handle-errors
+						switch (error.code) {
+							case "storage/unauthorized":
+								// User doesn't have permission to access the object
+								break;
+							case "storage/canceled":
+								// User canceled the upload
+								break;
+							// ...
+							case "storage/unknown":
+								// Unknown error occurred, inspect error.serverResponse
+								break;
+							default:
+								break;
+						}
+					},
+					() => {
+						// Upload completed successfully, now we can get the download URL
+						getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+							console.log("File available at", downloadURL);
+							setPhotoURL(downloadURL);
+							await updateUserInfo(name, email, downloadURL);
+						});
+					}
+			  )
+			: await updateUserInfo(name, email, photoURL);
+
+		setFile("");
+		setFileName("");
 	}
 
 	useEffect(() => {
@@ -74,14 +147,30 @@ export default function AccountManagementPage() {
 											<label className="block text-sm font-medium text-gray-700">Photo</label>
 											<div className="mt-1 flex items-center">
 												<span className="inline-block h-12 w-12 overflow-hidden rounded-full bg-gray-100">
-													<img className="h-full w-full text-gray-300" src={photoURL} alt={name} />
+													{file ? (
+														<img className="h-full w-full text-gray-300" src={window.URL.createObjectURL(file)} alt={name} />
+													) : (
+														<img className="h-full w-full text-gray-300" src={photoURL} alt={name} />
+													)}
 												</span>
 												<button
 													type="button"
 													className="ml-5 rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+													onClick={() => {
+														document.getElementById("file_input").click();
+													}}
 												>
 													Change
 												</button>
+												<input
+													className="mt-1 w-full hidden"
+													aria-describedby="file_input_help"
+													id="file_input"
+													type="file"
+													required
+													accept="image/*"
+													onChange={handleFileChange}
+												></input>
 											</div>
 										</div>
 
@@ -94,7 +183,7 @@ export default function AccountManagementPage() {
 													type="text"
 													name="full-name"
 													id="full-name"
-													autoComplete="given-name"
+													autoComplete="name"
 													className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 													value={name}
 													onChange={(e) => setName(e.target.value)}
@@ -184,7 +273,7 @@ export default function AccountManagementPage() {
 													type="password"
 													name="confirm-password"
 													id="confirm-password"
-													autoComplete="confirm-password"
+													autoComplete="new-password"
 													className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 													value={confirmPassword}
 													onKeyUp={(e) => validateConfirmPassword(e.target)}
