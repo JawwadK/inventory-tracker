@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "inventory-track"
-  }
+  },
+  "targets": {
+    "inventory-track": {
+      "hosting": {
+        "beta": [
+          "beta-inventory-track"
+        ],
+        "main": [
+          "inventory-track"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
