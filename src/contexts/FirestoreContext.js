@@ -110,6 +110,27 @@ export function FirestoreProvider({ children }) {
 		}
 	}
 
+	async function updatePassword(oldpassword, password) {
+		const docRef = doc(db, "users", user.email);
+		const docSnap = await getDoc(docRef);
+
+		if (oldpassword === user.password) {
+			if (docSnap.exists()) {
+				await updateDoc(docRef, {
+					password: password,
+				});
+				logout();
+				alert("Password updated successfully");
+			} else {
+				// User does not exist
+				console.log("User does not exist. Cant update password information.");
+			}
+		} else {
+			// Password is incorrect
+			alert("Current password is incorrect. Please try again.");
+		}
+	}
+
 	useEffect(() => {
 		async function getUserFromLocalStorage() {
 			const user = localStorage.getItem("user");
@@ -131,6 +152,7 @@ export function FirestoreProvider({ children }) {
 		register,
 		fetchUser,
 		updateUserInfo,
+		updatePassword,
 		deleteUser,
 		login,
 		logout,
