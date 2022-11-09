@@ -27,7 +27,7 @@ export function FirestoreProvider({ children }) {
 
 	function logout() {
 		setUser(null);
-		localStorage.clear();
+		localStorage.removeItem("user");
 	}
 
 	function randomString() {
@@ -60,7 +60,7 @@ export function FirestoreProvider({ children }) {
 		}
 	}
 
-	async function login(email, password) {
+	async function login(email, password, rememberMe) {
 		const docRef = doc(db, "users", email);
 		const docSnap = await getDoc(docRef);
 
@@ -68,6 +68,11 @@ export function FirestoreProvider({ children }) {
 			if (docSnap.data().password === password) {
 				setUser({ ...docSnap.data(), id: docSnap.id });
 				localStorage.setItem("user", docSnap.data().uid);
+				if (rememberMe) {
+					localStorage.setItem("email", email);
+				} else {
+					localStorage.removeItem("email");
+				}
 				alert("logged in successfully");
 			} else {
 				// Password is incorrect
