@@ -19,15 +19,21 @@ export default function SearchPage() {
 			  });
 
 	useEffect(() => {
-		onSnapshot(query(collection(db, `products`), orderBy("name", "asc")), (snapshot) => {
+		const unsubscribe = onSnapshot(query(collection(db, `products`), orderBy("name", "asc")), (snapshot) => {
 			setProducts(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
 		});
+		return () => {
+			unsubscribe();
+		};
 	}, []);
 
 	useEffect(() => {
-		onSnapshot(query(collection(db, `inventory`), orderBy("timestamp", "desc"), limit(4)), (snapshot) => {
+		const unsubscribe = onSnapshot(query(collection(db, `inventory`), orderBy("timestamp", "desc"), limit(4)), (snapshot) => {
 			setInventory(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
 		});
+		return () => {
+			unsubscribe();
+		};
 	}, []);
 
 	useEffect(() => {

@@ -19,16 +19,23 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 	const [quantity, setQuantity] = useState("0");
 
 	useEffect(() => {
-		onSnapshot(collection(db, `products`), (snapshot) => {
+		const unsubscribe = onSnapshot(collection(db, `products`), (snapshot) => {
 			setProducts(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
 		});
+		return () => {
+			unsubscribe();
+		};
 	}, []);
 
 	useEffect(() => {
-		onSnapshot(collection(db, `stores`), (snapshot) => {
+		const unsubscribe = onSnapshot(collection(db, `stores`), (snapshot) => {
 			setStores(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
 		});
+		return () => {
+			unsubscribe();
+		};
 	}, []);
+	
 
 	function resetModal() {
 		setSelectedStore(null);
