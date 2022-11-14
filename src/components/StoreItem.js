@@ -24,6 +24,12 @@ export default function StoreItem({ inventoryItem }) {
 						<Link to={`/store/${store?.id}`}>
 							<span aria-hidden="true" className="absolute inset-0" />
 							{store?.name}
+							<br />
+							{store?.address}
+							<br />
+							{store?.city}, {store?.province}
+							<br />
+							{store?.postal}
 						</Link>
 					</h3>
 					<p className="mt-1 text-sm text-gray-500">Quantity: {inventoryItem?.quantity}</p>
