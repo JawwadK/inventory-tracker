@@ -35,15 +35,14 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 			unsubscribe();
 		};
 	}, []);
-	
 
 	function resetModal() {
 		setSelectedStore(null);
 		setSelectedProduct(null);
 		setQueryStore("");
 		setQueryProduct("");
-		setPrice("0.00");
-		setQuantity("0");
+		setPrice(0.0);
+		setQuantity(0);
 		setOpen(false);
 	}
 
@@ -254,7 +253,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 															className="block w-full rounded-md border-gray-300 pl-7 pr-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 															placeholder="0.00"
 															value={price}
-															onChange={(e) => setPrice(e.target.value)}
+															onChange={(e) => setPrice(parseFloat(e.target.value))}
 														/>
 														<div className="absolute inset-y-0 right-0 flex items-center">
 															<label htmlFor="currency" className="sr-only">
@@ -284,7 +283,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 														autoComplete="quantity"
 														className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 														value={quantity}
-														onChange={(e) => setQuantity(e.target.value)}
+														onChange={(e) => setQuantity(parseInt(e.target.value))}
 													/>
 												</div>
 											</div>
@@ -294,7 +293,6 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 										<button
 											type="submit"
 											className="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-											onClick={() => handleSave()}
 										>
 											Save
 										</button>

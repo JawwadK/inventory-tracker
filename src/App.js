@@ -48,12 +48,13 @@ function App() {
 					}
 				/>
 				<Route
-					path="/product/:productid"
+					path="/product/:productId"
 					element={
 						user ? (
 							<>
 								<NavBar />
 								<ProductPage />
+								<Footer />
 							</>
 						) : (
 							<Navigate to="/login" replace />
@@ -67,6 +68,7 @@ function App() {
 							<>
 								<NavBar />
 								<AccountManagementPage />
+								<Footer />
 							</>
 						) : (
 							<Navigate to="/login" replace />
