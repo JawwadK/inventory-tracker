@@ -15,15 +15,15 @@ export default function StoreItem({ inventoryItem }) {
 
 	return (
 		<div className="group relative">
-			<div className="min-h-60 aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:aspect-none">
-				<img src={store?.image} alt={store?.name} className="h-full w-full object-cover object-center lg:h-full lg:w-full" />
+			<div className="h-60 aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:aspect-none">
+				<img src={store?.image} alt={store?.name} className="min-h-full w-full object-cover object-center lg:h-full lg:w-full" />
 			</div>
 			<div className="mt-4 flex justify-between">
 				<div className="text-left">
 					<h3 className="text-sm text-gray-700">
 						<Link to={`/store/${store?.id}`}>
 							<span aria-hidden="true" className="absolute inset-0" />
-							{store?.name}
+							<span className="font-bold text-lg">{store?.name}</span>
 							<br />
 							{store?.address}
 							<br />
@@ -34,7 +34,7 @@ export default function StoreItem({ inventoryItem }) {
 					</h3>
 					<p className="mt-1 text-sm text-gray-500">Quantity: {inventoryItem?.quantity}</p>
 				</div>
-				<p className="text-sm font-medium text-gray-900">{`$${inventoryItem?.price}`}</p>
+				<p className="text-lg font-medium text-gray-900">{`$${inventoryItem?.price}`}</p>
 			</div>
 		</div>
 	);

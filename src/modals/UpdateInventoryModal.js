@@ -1,6 +1,5 @@
 import { Combobox, Dialog, Transition } from "@headlessui/react";
-import { CheckIcon } from "@heroicons/react/24/outline";
-import { addDoc, collection, doc, onSnapshot, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, doc, getDocs, limit, onSnapshot, query, serverTimestamp, updateDoc, where } from "firebase/firestore";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { db } from "../utilities/firebase";
 
@@ -15,8 +14,8 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 	const [queryStore, setQueryStore] = useState("");
 	const [queryProduct, setQueryProduct] = useState("");
 
-	const [price, setPrice] = useState("0.00");
-	const [quantity, setQuantity] = useState("0");
+	const [price, setPrice] = useState();
+	const [quantity, setQuantity] = useState();
 
 	useEffect(() => {
 		const unsubscribe = onSnapshot(collection(db, `products`), (snapshot) => {
@@ -51,7 +50,36 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 		const storeRef = doc(db, "stores", selectedStore.id);
 		const productRef = doc(db, "products", selectedProduct.id);
 		console.log(selectedStore, selectedProduct, price, quantity);
-		await addDoc(collection(db, `inventory`), {
+
+		// Get inventory items in database (should only return 1)
+		const inventoryItemQuery = query(
+			collection(db, `inventory`),
+			where("productRef", "==", doc(db, "products", selectedProduct.id)),
+			where("storeRef", "==", doc(db, "stores", selectedStore.id)),
+			limit(1)
+		);
+
+		// Check if inventory item already exists and get id
+		const inventoryItemSnapshots = await getDocs(inventoryItemQuery);
+		const inventoryItemId = inventoryItemSnapshots.docs[0]?.id;
+
+		// If inventory item already exists update otherwise add
+		if (inventoryItemId) {
+			await updateDoc(doc(db, "inventory", inventoryItemId), {
+				price: price,
+				quantity: quantity,
+			});
+		} else {
+			await addDoc(collection(db, `inventory`), {
+				storeRef: storeRef,
+				productRef: productRef,
+				price: price,
+				quantity: quantity,
+				timestamp: serverTimestamp(),
+			}).then(resetModal());
+		}
+		// Add inventory update entry in historical for price tracking
+		await addDoc(collection(db, `historical_inventory`), {
 			storeRef: storeRef,
 			productRef: productRef,
 			price: price,
@@ -140,26 +168,13 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 																					}
 																					value={store}
 																				>
-																					{({ selectedStore, active }) => (
-																						<>
-																							<div className="flex items-center">
-																								<img src={store?.image} alt="" className="h-6 w-6 flex-shrink-0 rounded-md" />
-																								<span className={classNames(selectedStore ? "font-semibold" : "font-normal", "ml-3 block truncate")}>
-																									{store?.name}
-																								</span>
-																							</div>
-
-																							{selectedStore ? (
-																								<span
-																									className={classNames(
-																										active ? "text-white" : "text-indigo-600",
-																										"absolute inset-y-0 right-0 flex items-center pr-4"
-																									)}
-																								>
-																									<CheckIcon className="h-5 w-5" aria-hidden="true" />
-																								</span>
-																							) : null}
-																						</>
+																					{({ selectedStore }) => (
+																						<div className="flex items-center">
+																							<img src={store?.image} alt="" className="h-6 w-6 flex-shrink-0 rounded-md" />
+																							<span className={classNames(selectedStore ? "font-semibold" : "font-normal", "ml-3 block truncate")}>
+																								<span className="font-semibold">{store?.name}</span> - {store?.address}
+																							</span>
+																						</div>
 																					)}
 																				</Combobox.Option>
 																			))}
@@ -204,26 +219,13 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 																					}
 																					value={product}
 																				>
-																					{({ selectedProduct, active }) => (
-																						<>
-																							<div className="flex items-center">
-																								<img src={product?.image} alt="" className="h-6 w-6 flex-shrink-0 rounded-md" />
-																								<span className={classNames(selectedProduct ? "font-semibold" : "font-normal", "ml-3 block truncate")}>
-																									{product?.name}
-																								</span>
-																							</div>
-
-																							{selectedProduct ? (
-																								<span
-																									className={classNames(
-																										active ? "text-white" : "text-indigo-600",
-																										"absolute inset-y-0 right-0 flex items-center pr-4"
-																									)}
-																								>
-																									<CheckIcon className="h-5 w-5" aria-hidden="true" />
-																								</span>
-																							) : null}
-																						</>
+																					{({ selectedProduct }) => (
+																						<div className="flex items-center">
+																							<img src={product?.image} alt="" className="h-6 w-6 flex-shrink-0 rounded-md" />
+																							<span className={classNames(selectedProduct ? "font-semibold" : "font-normal", "ml-3 block truncate")}>
+																								{product?.name}
+																							</span>
+																						</div>
 																					)}
 																				</Combobox.Option>
 																			))}
@@ -281,6 +283,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 														id="quantity"
 														required
 														autoComplete="quantity"
+														placeholder="0"
 														className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 														value={quantity}
 														onChange={(e) => setQuantity(parseInt(e.target.value))}

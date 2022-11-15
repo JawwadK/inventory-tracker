@@ -29,8 +29,12 @@ export default function NavBar() {
 							</div>
 							<div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
 								<div className="flex flex-shrink-0 items-center">
-									<img className="block h-8 w-auto lg:hidden" src="https://tailwindui.com/img/logos/mark.svg?color=blue&shade=500" alt="Inventory Tracker" />
-									<img className="hidden h-8 w-auto lg:block" src="https://tailwindui.com/img/logos/mark.svg?color=blue&shade=500" alt="Inventory Tracker" />
+									<Link className="block w-auto lg:hidden text-2xl text-white" to="/" alt="Inventory Tracker">
+										Inventory Tracker
+									</Link>
+									<Link className="hidden w-auto lg:block text-2xl text-white" to="/" alt="Inventory Tracker">
+										Inventory Tracker
+									</Link>
 								</div>
 							</div>
 							<div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
