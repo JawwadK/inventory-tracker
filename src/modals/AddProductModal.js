@@ -1,11 +1,11 @@
-import React, { Fragment, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import imageCompression from "browser-image-compression";
 import { Dialog, Transition } from "@headlessui/react";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { db, storage } from "../utilities/firebase";
 
-export default function AddProductModal({ open, setOpen }) {
+export default function AddProductModal({ open, setOpen, product }) {
 	const cancelButtonRef = useRef(null);
 	const [name, setName] = useState("");
 	const [upc, setUpc] = useState("");
@@ -30,6 +30,14 @@ export default function AddProductModal({ open, setOpen }) {
 		setFileName(`${name}`);
 	};
 
+	useEffect(() => {
+		if (product) {
+			setName(product.name);
+			setUpc(product.upc);
+			setDescription(product.description);
+		}
+	}, [product]);
+
 	function resetModal() {
 		setName("");
 		setUpc("");
@@ -45,57 +53,59 @@ export default function AddProductModal({ open, setOpen }) {
 		const storageRef = ref(storage, `products/${Math.floor(Math.random() * (9999 - 1000)) + 1000}-${fileName}`);
 		const uploadTask = file && uploadBytesResumable(storageRef, file);
 
-		file &&
-			uploadTask.on(
-				"state_changed",
-				(snapshot) => {
-					// Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-					const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-					console.log("Upload is " + progress + "% done");
-					switch (snapshot.state) {
-						case "paused":
-							console.log("Upload is paused");
-							break;
-						case "running":
-							console.log("Upload is running");
-							setProgress(progress);
-							break;
-						default:
-							break;
+		file
+			? uploadTask.on(
+					"state_changed",
+					(snapshot) => {
+						// Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+						const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+						console.log("Upload is " + progress + "% done");
+						switch (snapshot.state) {
+							case "paused":
+								console.log("Upload is paused");
+								break;
+							case "running":
+								console.log("Upload is running");
+								setProgress(progress);
+								break;
+							default:
+								break;
+						}
+					},
+					(error) => {
+						// A full list of error codes is available at
+						// https://firebase.google.com/docs/storage/web/handle-errors
+						switch (error.code) {
+							case "storage/unauthorized":
+								// User doesn't have permission to access the object
+								break;
+							case "storage/canceled":
+								// User canceled the upload
+								break;
+							// ...
+							case "storage/unknown":
+								// Unknown error occurred, inspect error.serverResponse
+								break;
+							default:
+								break;
+						}
+					},
+					() => {
+						// Upload completed successfully, now we can get the download URL
+						getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+							console.log("File available at", downloadURL);
+							product
+								? await updateDoc(doc(db, "products", product.id), { name, upc, description, image: downloadURL, timestamp: serverTimestamp() }).then(resetModal())
+								: await setDoc(doc(db, "products"), { name, upc, description, image: downloadURL, timestamp: serverTimestamp() }).then(resetModal());
+						});
 					}
-				},
-				(error) => {
-					// A full list of error codes is available at
-					// https://firebase.google.com/docs/storage/web/handle-errors
-					switch (error.code) {
-						case "storage/unauthorized":
-							// User doesn't have permission to access the object
-							break;
-						case "storage/canceled":
-							// User canceled the upload
-							break;
-						// ...
-						case "storage/unknown":
-							// Unknown error occurred, inspect error.serverResponse
-							break;
-						default:
-							break;
-					}
-				},
-				() => {
-					// Upload completed successfully, now we can get the download URL
-					getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-						console.log("File available at", downloadURL);
-						await setDoc(doc(db, `products`, upc), {
-							name: name,
-							upc: upc,
-							description: description,
-							timestamp: serverTimestamp(),
-							image: downloadURL,
-						}).then(resetModal());
-					});
-				}
-			);
+			  )
+			: await updateDoc(doc(db, `products`, upc), {
+					name: name,
+					upc: upc,
+					description: description,
+					timestamp: serverTimestamp(),
+			  }).then(resetModal());
 	}
 
 	return (
@@ -121,13 +131,19 @@ export default function AddProductModal({ open, setOpen }) {
 									<div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
 										<div className="mt-3 text-center sm:mt-0 sm:text-left">
 											<Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
-												Add Product
+												{product ? "Edit" : "Add"} Product
 											</Dialog.Title>
 											<div className="mt-2">
-												<p className="text-sm text-gray-500">Add a Product to the database</p>
+												<p className="text-sm text-gray-500">
+													{product ? "Edit" : "Add"} a Product {product ? "in" : "to"} the database
+												</p>
 											</div>
 											<div className="my-2">
-												{file && <img src={window.URL.createObjectURL(file)} className="min-w-full h-72 object-cover" alt="Upload" />}
+												{file ? (
+													<img src={window.URL.createObjectURL(file)} className="min-w-full h-72 object-cover" alt="Upload" />
+												) : (
+													product && <img src={product?.image} className="min-w-full h-72 object-cover" alt="Upload" />
+												)}
 												<label className="block mb-2 text-sm font-medium text-gray-700" htmlFor="file_input">
 													Upload file
 												</label>
@@ -136,7 +152,7 @@ export default function AddProductModal({ open, setOpen }) {
 													aria-describedby="file_input_help"
 													id="file_input"
 													type="file"
-													required
+													required={product ? false : true}
 													accept="image/*"
 													onChange={handleFileChange}
 												></input>
@@ -148,10 +164,11 @@ export default function AddProductModal({ open, setOpen }) {
 												<input
 													id="upc"
 													type="text"
-													className="block w-full flex-1 rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+													className="block w-full flex-1 rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:text-gray-400 disabled:hover:cursor-not-allowed"
 													value={upc}
 													required
 													onChange={(e) => setUpc(e.target.value)}
+													disabled={product ? true : false}
 												/>
 											</div>
 											<div className="my-2">

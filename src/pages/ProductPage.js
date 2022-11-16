@@ -6,6 +6,8 @@ import { useParams } from "react-router-dom";
 import StoreItem from "../components/StoreItem";
 import { db } from "../utilities/firebase";
 import "chartjs-adapter-moment";
+import { PencilIcon } from "@heroicons/react/24/outline";
+import AddProductModal from "../modals/AddProductModal";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, TimeScale);
 export const options = {
@@ -25,6 +27,7 @@ export default function ProductPage() {
 	const [product, setProduct] = useState(null);
 	const [inventory, setInventory] = useState();
 	const [inventoryHistory, setInventoryHistory] = useState();
+	const [addProductModalOpen, setAddProductModalOpen] = useState(false);
 
 	// const features = [
 	// 	{ name: "Origin", description: "Designed by Good Goods, Inc." },
@@ -43,7 +46,7 @@ export default function ProductPage() {
 			}
 		}
 		getProductInfo();
-	}, [productId]);
+	}, [productId, addProductModalOpen]);
 
 	useEffect(() => {
 		const unsubscribe = onSnapshot(query(collection(db, `inventory`), where("productRef", "==", doc(db, "products", productId))), (snapshot) => {
@@ -69,9 +72,16 @@ export default function ProductPage() {
 
 	return product ? (
 		<div className="bg-white">
-			{console.log(inventory)}
+			<AddProductModal open={addProductModalOpen} setOpen={setAddProductModalOpen} product={product} />
 			<div className="mx-auto grid max-w-2xl grid-cols-1 items-center gap-y-16 gap-x-8 py-24 px-4 sm:px-6 sm:py-32 lg:max-w-7xl lg:grid-cols-2 lg:px-8">
 				<div>
+					<button
+						onClick={() => setAddProductModalOpen(true)}
+						className="group relative flex justify-center rounded-full border border-transparent bg-indigo-600 p-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+					>
+						<PencilIcon className="h-5 w-5 text-white group-hover:text-indigo-400" />
+					</button>
+
 					<h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{product?.name}</h2>
 
 					{inventory?.length > 0 && (
