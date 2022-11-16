@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, onSnapshot, query, where } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, onSnapshot, query, setDoc, where } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, TimeScale } from "chart.js";
 import { Line } from "react-chartjs-2";
@@ -8,6 +8,8 @@ import { db } from "../utilities/firebase";
 import "chartjs-adapter-moment";
 import { PencilIcon } from "@heroicons/react/24/outline";
 import AddProductModal from "../modals/AddProductModal";
+import { PlusIcon, TrashIcon } from "@heroicons/react/20/solid";
+import { useFirestore } from "../contexts/FirestoreContext";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, TimeScale);
 export const options = {
@@ -28,15 +30,8 @@ export default function ProductPage() {
 	const [inventory, setInventory] = useState();
 	const [inventoryHistory, setInventoryHistory] = useState();
 	const [addProductModalOpen, setAddProductModalOpen] = useState(false);
-
-	// const features = [
-	// 	{ name: "Origin", description: "Designed by Good Goods, Inc." },
-	// 	{ name: "Material", description: "Solid walnut base with rare earth magnets and powder coated steel card cover" },
-	// 	{ name: "Dimensions", description: '6.25" x 3.55" x 1.15"' },
-	// 	{ name: "Finish", description: "Hand sanded and finished with natural oil" },
-	// 	{ name: "Includes", description: "Wood card tray and 3 refill packs" },
-	// 	{ name: "Considerations", description: "Made from natural materials. Grain and color vary with each item." },
-	// ];
+	const [inWishlist, setInWishList] = useState(false);
+	const { user } = useFirestore();
 
 	useEffect(() => {
 		async function getProductInfo() {
@@ -70,6 +65,28 @@ export default function ProductPage() {
 		document.title = `${product?.name} | Inventory Tracker`;
 	}, [product]);
 
+	async function handleAddToWishlist() {
+		if (inWishlist) {
+			await deleteDoc(doc(db, "users", user.id, "wishlist", productId));
+			setInWishList(false);
+		} else {
+			await setDoc(doc(db, "users", user.id, "wishlist", productId), {
+				productRef: doc(db, "products", productId),
+			});
+			setInWishList(true);
+		}
+	}
+
+	useEffect(() => {
+		async function getWishlistInfo() {
+			const productInfo = await getDoc(doc(db, `users/${user.id}/wishlist`, productId));
+			if (productInfo.exists()) {
+				setInWishList(true);
+			}
+		}
+		getWishlistInfo();
+	}, [user.id, productId]);
+
 	return product ? (
 		<div className="bg-white">
 			{console.log(JSON.stringify(product?.description))}
@@ -92,18 +109,22 @@ export default function ProductPage() {
 					)}
 
 					<p className="mt-4 text-gray-500" dangerouslySetInnerHTML={{ __html: product?.description.replace(/\n/g, "<br />") }}></p>
-
-					{/* <dl className="mt-16 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
-						{features.map((feature) => (
-							<div key={feature.name} className="border-t border-gray-200 pt-4">
-								<dt className="font-medium text-gray-900">{feature.name}</dt>
-								<dd className="mt-2 text-sm text-gray-500">{feature.description}</dd>
-							</div>
-						))}
-					</dl> */}
 				</div>
 				<div className="grid gap-4 sm:gap-6 lg:gap-8">
 					<img src={product?.image} alt={product?.name} className="rounded-lg bg-gray-100" />
+					<button
+						onClick={() => handleAddToWishlist()}
+						className="group relative flex justify-center rounded-full border border-transparent bg-indigo-600 p-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-indigo-700"
+					>
+						<span className="absolute inset-y-0 left-0 flex items-center pl-3">
+							{inWishlist ? (
+								<TrashIcon className="h-5 w-5 text-white group-hover:text-indigo-400 group-disabled:text-indigo-400" />
+							) : (
+								<PlusIcon className="h-5 w-5 text-white group-hover:text-indigo-400 group-disabled:text-indigo-400" />
+							)}
+						</span>
+						<span className="hover:text-indigo-200">{inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}</span>
+					</button>
 				</div>
 			</div>
 			<div className="p-3 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">

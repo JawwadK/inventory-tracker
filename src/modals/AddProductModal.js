@@ -191,7 +191,7 @@ export default function AddProductModal({ open, setOpen, product }) {
 												<textarea
 													id="name"
 													type="text"
-													className="block w-full flex-1 rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+													className="block w-full h-40 flex-1 rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 													value={description}
 													required
 													onChange={(e) => setDescription(e.target.value)}

@@ -96,7 +96,7 @@ export default function NavBar() {
 												</Menu.Item>
 												<Menu.Item>
 													{({ active }) => (
-														<Link to="/accounts/edit" className={classNames(active ? "bg-gray-100" : "", "flex px-4 py-2 text-sm gap-1 text-gray-700 no-underline")}>
+														<Link to="/account" className={classNames(active ? "bg-gray-100" : "", "flex px-4 py-2 text-sm gap-1 text-gray-700 no-underline")}>
 															<Cog6ToothIcon className="block h-5 w-5" />
 															Settings
 														</Link>

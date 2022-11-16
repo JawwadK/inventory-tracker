@@ -62,7 +62,7 @@ function App() {
 					}
 				/>
 				<Route
-					path="/accounts/edit"
+					path="/account"
 					element={
 						user ? (
 							<>
