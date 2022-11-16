@@ -72,6 +72,7 @@ export default function ProductPage() {
 
 	return product ? (
 		<div className="bg-white">
+			{console.log(JSON.stringify(product?.description))}
 			<AddProductModal open={addProductModalOpen} setOpen={setAddProductModalOpen} product={product} />
 			<div className="mx-auto grid max-w-2xl grid-cols-1 items-center gap-y-16 gap-x-8 py-24 px-4 sm:px-6 sm:py-32 lg:max-w-7xl lg:grid-cols-2 lg:px-8">
 				<div>
@@ -90,7 +91,7 @@ export default function ProductPage() {
 						</div>
 					)}
 
-					<p className="mt-4 text-gray-500">{product?.description}</p>
+					<p className="mt-4 text-gray-500" dangerouslySetInnerHTML={{ __html: product?.description.replace(/\n/g, "<br />") }}></p>
 
 					{/* <dl className="mt-16 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
 						{features.map((feature) => (
@@ -105,7 +106,6 @@ export default function ProductPage() {
 					<img src={product?.image} alt={product?.name} className="rounded-lg bg-gray-100" />
 				</div>
 			</div>
-
 			<div className="p-3 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
 				<h1 className=" text-2xl sm:text-3xl font-bold tracking-tight mb-2">Availability:</h1>
 				{inventory?.length > 0 ? (
@@ -120,7 +120,6 @@ export default function ProductPage() {
 					<h1 className=" text-2xl font-bold tracking-tight mb-2 text-center">Product not available at any stores</h1>
 				)}
 			</div>
-
 			<div className="p-3 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
 				<h1 className=" text-2xl sm:text-3xl font-bold tracking-tight mb-2">Price History:</h1>
 				<div>
@@ -133,11 +132,22 @@ export default function ProductPage() {
 								{
 									label: "Price",
 									data: inventoryHistory?.sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1)).map((item) => item?.price),
-									fill: true,
-									pointRadius: 1,
-									pointHoverRadius: 5,
-									backgroundColor: "#3333FF",
+									fill: false,
 									borderColor: "#3333FF",
+									backgroundColor: "#212F3D",
+									pointBorderColor: "#B2BABB",
+									pointBackgroundColor: "#3e3fca",
+									pointHoverBackgroundColor: "#3e3fca",
+									pointHoverBorderColor: "white",
+									borderCapStyle: "butt",
+									borderDash: [],
+									borderDashOffset: 0.0,
+									borderJoinStyle: "miter",
+									pointBorderWidth: 1,
+									pointHoverRadius: 5,
+									pointHoverBorderWidth: 2,
+									pointRadius: 3,
+									pointHitRadius: 10,
 								},
 							],
 						}}
