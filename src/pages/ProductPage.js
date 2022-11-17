@@ -105,7 +105,7 @@ export default function ProductPage() {
 
 					{inventory?.length > 0 && (
 						<div className="mt-8">
-							<h3 className="text-2xl font-medium text-gray-900">{`Lowest Price Available: $${inventory[0].price}`}</h3>
+							<h3 className="text-2xl font-medium text-gray-900">{`Lowest Price Available: $${inventory.sort((a, b) => (a.price > b.price ? 1 : -1))[0].price}`}</h3>
 						</div>
 					)}
 
