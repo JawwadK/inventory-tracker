@@ -1,6 +1,7 @@
 import { Combobox, Dialog, Transition } from "@headlessui/react";
 import { addDoc, collection, doc, getDocs, limit, onSnapshot, query, serverTimestamp, updateDoc, where } from "firebase/firestore";
 import React, { Fragment, useEffect, useRef, useState } from "react";
+import { useFirestore } from "../contexts/FirestoreContext";
 import { db } from "../utilities/firebase";
 
 export default function UpdateInventoryModal({ open, setOpen }) {
@@ -16,6 +17,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 
 	const [price, setPrice] = useState();
 	const [quantity, setQuantity] = useState();
+	const { user } = useFirestore();
 
 	useEffect(() => {
 		const unsubscribe = onSnapshot(collection(db, `products`), (snapshot) => {
@@ -49,8 +51,6 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 		e.preventDefault();
 		const storeRef = doc(db, "stores", selectedStore.id);
 		const productRef = doc(db, "products", selectedProduct.id);
-		console.log(selectedStore, selectedProduct, price, quantity);
-
 		// Get inventory items in database (should only return 1)
 		const inventoryItemQuery = query(
 			collection(db, `inventory`),
@@ -68,6 +68,13 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 			await updateDoc(doc(db, "inventory", inventoryItemId), {
 				price: price,
 				quantity: quantity,
+			}).then(async () => {
+				await addDoc(collection(db, "logs"), {
+					user: user?.name,
+					action: "Update Inventory",
+					id: inventoryItemId,
+					timestamp: serverTimestamp(),
+				});
 			});
 		} else {
 			await addDoc(collection(db, `inventory`), {
@@ -76,6 +83,13 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 				price: price,
 				quantity: quantity,
 				timestamp: serverTimestamp(),
+			}).then(async (docRef) => {
+				await addDoc(collection(db, "logs"), {
+					user: user?.name,
+					action: "Add Inventory",
+					id: docRef?.id,
+					timestamp: serverTimestamp(),
+				});
 			});
 		}
 		// Add inventory update entry in historical for price tracking

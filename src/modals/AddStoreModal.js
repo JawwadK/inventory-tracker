@@ -1,11 +1,12 @@
 import { Dialog, Transition } from "@headlessui/react";
 import imageCompression from "browser-image-compression";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import React, { Fragment, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
+import { useFirestore } from "../contexts/FirestoreContext";
 import { db, storage } from "../utilities/firebase";
 
-export default function AddStoreModal({ open, setOpen }) {
+export default function AddStoreModal({ open, setOpen, store }) {
 	const cancelButtonRef = useRef(null);
 	const [name, setName] = useState("");
 	const [address, setAddress] = useState("");
@@ -15,6 +16,7 @@ export default function AddStoreModal({ open, setOpen }) {
 	const [file, setFile] = useState("");
 	const [fileName, setFileName] = useState("");
 	const [progress, setProgress] = useState(0);
+	const { user } = useFirestore();
 
 	const handleFileChange = async (e) => {
 		const options = {
@@ -31,6 +33,16 @@ export default function AddStoreModal({ open, setOpen }) {
 		if (name.length > 20) name = name.split(".")[0].substring(0, 20) + "...." + name.split(".")[name.split(".").length - 1];
 		setFileName(`${name}`);
 	};
+
+	useEffect(() => {
+		if (store) {
+			setName(store.name);
+			setAddress(store.address);
+			setCity(store.city);
+			setProvince(store.province);
+			setPostal(store.postal);
+		}
+	}, [store]);
 
 	function resetModal() {
 		setName("");
@@ -49,59 +61,101 @@ export default function AddStoreModal({ open, setOpen }) {
 		const storageRef = ref(storage, `stores/${Math.floor(Math.random() * (9999 - 1000)) + 1000}-${fileName}`);
 		const uploadTask = file && uploadBytesResumable(storageRef, file);
 
-		file &&
-			uploadTask.on(
-				"state_changed",
-				(snapshot) => {
-					// Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-					const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-					console.log("Upload is " + progress + "% done");
-					switch (snapshot.state) {
-						case "paused":
-							console.log("Upload is paused");
-							break;
-						case "running":
-							console.log("Upload is running");
-							setProgress(progress);
-							break;
-						default:
-							break;
+		file
+			? uploadTask.on(
+					"state_changed",
+					(snapshot) => {
+						// Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+						const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+						console.log("Upload is " + progress + "% done");
+						switch (snapshot.state) {
+							case "paused":
+								console.log("Upload is paused");
+								break;
+							case "running":
+								console.log("Upload is running");
+								setProgress(progress);
+								break;
+							default:
+								break;
+						}
+					},
+					(error) => {
+						// A full list of error codes is available at
+						// https://firebase.google.com/docs/storage/web/handle-errors
+						switch (error.code) {
+							case "storage/unauthorized":
+								// User doesn't have permission to access the object
+								break;
+							case "storage/canceled":
+								// User canceled the upload
+								break;
+							// ...
+							case "storage/unknown":
+								// Unknown error occurred, inspect error.serverResponse
+								break;
+							default:
+								break;
+						}
+					},
+					() => {
+						// Upload completed successfully, now we can get the download URL
+						getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+							console.log("File available at", downloadURL);
+							store
+								? await updateDoc(doc(db, `stores`, store.id), {
+										name: name,
+										address: address,
+										city: city,
+										province: province,
+										postal: postal,
+										timestamp: serverTimestamp(),
+										image: downloadURL,
+								  }).then(async () => {
+										resetModal();
+										await addDoc(collection(db, "logs"), {
+											user: user?.name,
+											action: "Edit Store",
+											id: store.id,
+											timestamp: serverTimestamp(),
+										});
+								  })
+								: await addDoc(collection(db, `stores`), {
+										name: name,
+										address: address,
+										city: city,
+										province: province,
+										postal: postal,
+										timestamp: serverTimestamp(),
+										image: downloadURL,
+								  }).then(async (docRef) => {
+										resetModal();
+										await addDoc(collection(db, "logs"), {
+											user: user?.name,
+											action: "Add New Store",
+											id: docRef?.id,
+											timestamp: serverTimestamp(),
+										});
+								  });
+						});
 					}
-				},
-				(error) => {
-					// A full list of error codes is available at
-					// https://firebase.google.com/docs/storage/web/handle-errors
-					switch (error.code) {
-						case "storage/unauthorized":
-							// User doesn't have permission to access the object
-							break;
-						case "storage/canceled":
-							// User canceled the upload
-							break;
-						// ...
-						case "storage/unknown":
-							// Unknown error occurred, inspect error.serverResponse
-							break;
-						default:
-							break;
-					}
-				},
-				() => {
-					// Upload completed successfully, now we can get the download URL
-					getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-						console.log("File available at", downloadURL);
-						await addDoc(collection(db, `stores`), {
-							name: name,
-							address: address,
-							city: city,
-							province: province,
-							postal: postal,
-							timestamp: serverTimestamp(),
-							image: downloadURL,
-						}).then(resetModal());
+			  ) // Case for when editing a product without image
+			: await updateDoc(doc(db, `stores`, store.id), {
+					name: name,
+					address: address,
+					city: city,
+					province: province,
+					postal: postal,
+					timestamp: serverTimestamp(),
+			  }).then(async () => {
+					resetModal();
+					await addDoc(collection(db, "logs"), {
+						user: user?.name,
+						action: "Edit Store",
+						id: store.id,
+						timestamp: serverTimestamp(),
 					});
-				}
-			);
+			  });
 	}
 
 	return (
@@ -127,14 +181,20 @@ export default function AddStoreModal({ open, setOpen }) {
 									<div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
 										<div className="mt-3 text-center sm:mt-0 sm:text-left">
 											<Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
-												Add Store
+												{store ? "Edit" : "Add"} Store
 											</Dialog.Title>
 											<div className="mt-2">
-												<p className="text-sm text-gray-500">Add a Store to the database</p>
+												<p className="text-sm text-gray-500">
+													{store ? "Edit" : "Add"} a Store {store ? "in" : "to"} the database
+												</p>
 											</div>
 
 											<div className="my-2">
-												{file && <img src={window.URL.createObjectURL(file)} className="min-w-full h-72 object-cover" alt="Upload" />}
+												{file ? (
+													<img src={window.URL.createObjectURL(file)} className="min-w-full h-72 object-cover" alt="Upload" />
+												) : (
+													store && <img src={store?.image} className="min-w-full h-72 object-cover" alt="Upload" />
+												)}
 
 												<label className="block mb-2 text-sm font-medium text-gray-700" htmlFor="file_input">
 													Upload file
@@ -144,7 +204,7 @@ export default function AddStoreModal({ open, setOpen }) {
 													aria-describedby="file_input_help"
 													id="file_input"
 													type="file"
-													required
+													required={store ? false : true}
 													accept="image/*"
 													onChange={handleFileChange}
 												></input>

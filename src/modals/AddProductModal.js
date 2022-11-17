@@ -1,9 +1,10 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import imageCompression from "browser-image-compression";
 import { Dialog, Transition } from "@headlessui/react";
-import { doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { db, storage } from "../utilities/firebase";
+import { useFirestore } from "../contexts/FirestoreContext";
 
 export default function AddProductModal({ open, setOpen, product }) {
 	const cancelButtonRef = useRef(null);
@@ -13,6 +14,7 @@ export default function AddProductModal({ open, setOpen, product }) {
 	const [file, setFile] = useState("");
 	const [fileName, setFileName] = useState("");
 	const [progress, setProgress] = useState(0);
+	const { user } = useFirestore();
 
 	const handleFileChange = async (e) => {
 		const options = {
@@ -95,17 +97,42 @@ export default function AddProductModal({ open, setOpen, product }) {
 						getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
 							console.log("File available at", downloadURL);
 							product
-								? await updateDoc(doc(db, "products", product.id), { name, upc, description, image: downloadURL, timestamp: serverTimestamp() }).then(resetModal())
-								: await setDoc(doc(db, "products"), { name, upc, description, image: downloadURL, timestamp: serverTimestamp() }).then(resetModal());
+								? await updateDoc(doc(db, "products", product.id), { name, upc, description, image: downloadURL, timestamp: serverTimestamp() }).then(async () => {
+										resetModal();
+										await addDoc(collection(db, "logs"), {
+											user: user?.name,
+											action: "Edit Product",
+											id: upc,
+											timestamp: serverTimestamp(),
+										});
+								  })
+								: await setDoc(doc(db, "products", upc), { name, upc, description, image: downloadURL, timestamp: serverTimestamp() }).then(async () => {
+										resetModal();
+										await addDoc(collection(db, "logs"), {
+											user: user?.name,
+											action: "Add New Product",
+											id: upc,
+											timestamp: serverTimestamp(),
+										});
+								  });
 						});
 					}
 			  )
-			: await updateDoc(doc(db, `products`, upc), {
+			: // Case for when editing a product without image
+			  await updateDoc(doc(db, `products`, upc), {
 					name: name,
 					upc: upc,
 					description: description,
 					timestamp: serverTimestamp(),
-			  }).then(resetModal());
+			  }).then(async () => {
+					resetModal();
+					await addDoc(collection(db, "logs"), {
+						user: user?.name,
+						action: "Edit Product",
+						id: upc,
+						timestamp: serverTimestamp(),
+					});
+			  });
 	}
 
 	return (
