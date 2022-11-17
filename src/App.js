@@ -10,6 +10,7 @@ import AccountManagementPage from "./pages/AccountManagementPage";
 import AdministrationPage from "./pages/AdministrationPage";
 import Footer from "./components/Footer";
 import ProductPage from "./pages/ProductPage";
+import StorePage from "./pages/StorePage";
 
 function App() {
 	const { user } = useFirestore();
@@ -56,6 +57,20 @@ function App() {
 							<>
 								<NavBar />
 								<ProductPage />
+								<Footer />
+							</>
+						) : (
+							<Navigate to="/login" replace />
+						)
+					}
+				/>
+				<Route
+					path="/store/:storeId"
+					element={
+						user ? (
+							<>
+								<NavBar />
+								<StorePage />
 								<Footer />
 							</>
 						) : (
