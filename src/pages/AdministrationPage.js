@@ -21,7 +21,7 @@ export default function AdministrationPage() {
 
 	useEffect(() => {
 		const unsubscribe = onSnapshot(query(collection(db, `logs`), orderBy("timestamp", "desc")), (snapshot) => {
-			setLogs(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+			setLogs(snapshot.docs.map((doc) => ({ ...doc.data(), logId: doc.id })));
 		});
 		return () => {
 			unsubscribe();
@@ -71,9 +71,9 @@ export default function AdministrationPage() {
 							</tr>
 						</thead>
 						<tbody>
-							{logs &&
+							{logs?.length > 0 &&
 								logs.map((log) => (
-									<tr key={log.id}>
+									<tr key={log.logId}>
 										<td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
 											<div className="text-sm leading-5 font-medium text-gray-900">{log.user}</div>
 										</td>
@@ -85,7 +85,7 @@ export default function AdministrationPage() {
 										</td>
 										<td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
 											<div className="text-sm leading-5 text-gray-900">
-												<Moment format="LL LTS">{log.timestamp.toDate()}</Moment>
+												<Moment format="LL LTS">{log.timestamp?.toDate()}</Moment>
 											</div>
 										</td>
 									</tr>
