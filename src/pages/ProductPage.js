@@ -112,7 +112,7 @@ export default function ProductPage() {
 					<p className="mt-4 text-gray-500" dangerouslySetInnerHTML={{ __html: product?.description.replace(/\n/g, "<br />") }}></p>
 				</div>
 				<div className="grid gap-4 sm:gap-6 lg:gap-8">
-					<img src={product?.image} alt={product?.name} className="rounded-lg bg-gray-100" />
+					<img src={product?.image} alt={product?.name} className="rounded-lg bg-gray-100 mx-auto" />
 					<button
 						onClick={() => handleAddToWishlist()}
 						className="group relative flex justify-center rounded-full border border-transparent bg-indigo-600 p-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-indigo-700"

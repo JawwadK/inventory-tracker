@@ -56,14 +56,14 @@ export default function StorePage() {
 					)}
 
 					<h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{store?.name}</h2>
-                    <p className="mt-4 text-gray-500">{store?.address}</p>
-                    <p className=" text-gray-500">{store?.city}, {store?.province}</p>
-                    <p className=" text-gray-500">{store?.postal}</p>
-
+					<p className="mt-4 text-gray-500">{store?.address}</p>
+					<p className=" text-gray-500">
+						{store?.city}, {store?.province}
+					</p>
+					<p className=" text-gray-500">{store?.postal}</p>
 				</div>
 				<div className="grid gap-4 sm:gap-6 lg:gap-8">
-					<img src={store?.image} alt={store?.name} className="rounded-lg bg-gray-100" />
-					
+					<img src={store?.image} alt={store?.name} className="rounded-lg bg-gray-100  mx-auto" />
 				</div>
 			</div>
 		</div>
