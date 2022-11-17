@@ -33,20 +33,22 @@ function App() {
 						)
 					}
 				/>
-				<Route
-					path="/administration"
-					element={
-						user ? (
-							<>
-								<NavBar />
-								<AdministrationPage />
-								<Footer />
-							</>
-						) : (
-							<Navigate to="/login" replace />
-						)
-					}
-				/>
+				{user?.isAdmin === true && (
+					<Route
+						path="/administration"
+						element={
+							user ? (
+								<>
+									<NavBar />
+									<AdministrationPage />
+									<Footer />
+								</>
+							) : (
+								<Navigate to="/login" replace />
+							)
+						}
+					/>
+				)}
 				<Route
 					path="/product/:productId"
 					element={
