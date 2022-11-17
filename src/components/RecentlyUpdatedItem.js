@@ -2,7 +2,7 @@ import { getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-export default function RecommendedInventoryItem({ inventoryItem }) {
+export default function RecentlyUpdatedItem({ inventoryItem }) {
 	const [product, setProduct] = useState(null);
 
 	useEffect(() => {

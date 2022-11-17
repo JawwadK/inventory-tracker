@@ -1,22 +1,13 @@
-import { collection, getDoc, onSnapshot, query, where } from "firebase/firestore";
+import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { db } from "../utilities/firebase";
 
-export default function ProductItem({ productItem }) {
-	const [product, setProduct] = useState(null);
+export default function RecommendedProductItem({ productItem }) {
 	const [inventory, setInventory] = useState(null);
 
 	useEffect(() => {
-		async function getStoreAndProductInfo() {
-			const productInfo = await getDoc(productItem?.productRef);
-			setProduct({ ...productInfo.data(), id: productInfo.id });
-		}
-		getStoreAndProductInfo();
-	}, [productItem]);
-
-	useEffect(() => {
-		const unsubscribe = onSnapshot(query(collection(db, `inventory`), where("productRef", "==", productItem?.productRef)), (snapshot) => {
+		const unsubscribe = onSnapshot(query(collection(db, `inventory`), where("productRef", "==", doc(db, "products", productItem?.id))), (snapshot) => {
 			setInventory(snapshot.docs?.sort((a, b) => (a.price > b.price ? 1 : -1)).map((doc) => ({ ...doc.data(), id: doc.id })));
 		});
 		return () => {
@@ -26,17 +17,15 @@ export default function ProductItem({ productItem }) {
 
 	return (
 		<div className="group relative">
-			{console.log(productItem?.productRef)}
-			{console.log(inventory)}
 			<div className="min-h-80 aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:aspect-none lg:h-80">
-				<img src={product?.image} alt={product?.name} className="h-full w-full object-cover object-center lg:h-full lg:w-full" />
+				<img src={productItem?.image} alt={productItem?.name} className="h-full w-full object-cover object-center lg:h-full lg:w-full" />
 			</div>
 			<div className="mt-4 flex justify-between">
 				<div className="text-left">
 					<h3 className="text-sm text-gray-700">
-						<Link to={`/product/${product?.id}`}>
+						<Link to={`/product/${productItem?.id}`}>
 							<span aria-hidden="true" className="absolute inset-0" />
-							{product?.name}
+							{productItem?.name}
 						</Link>
 					</h3>
 					{}

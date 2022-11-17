@@ -3,11 +3,12 @@ import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Combobox, Transition } from "@headlessui/react";
 import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../utilities/firebase";
-import RecommendedProducts from "../components/RecommendedProducts";
 
 import { Link, useNavigate } from "react-router-dom";
 import { useFirestore } from "../contexts/FirestoreContext";
-import ProductItem from "../components/ProductItem";
+import RecentlyUpdatedItem from "../components/RecentlyUpdatedItem";
+import WishlistItem from "../components/WishlistItem";
+import RecommendedProductItem from "../components/RecommendedProductItem";
 
 export default function SearchPage() {
 	const [products, setProducts] = useState();
@@ -124,15 +125,41 @@ export default function SearchPage() {
 						<div className="mx-auto max-w-2xl py-8 px-4 sm:py-0 sm:px-6 lg:max-w-7xl lg:px-8">
 							<div className="mt-6 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
 								{wishlist?.map((item) => (
-									<ProductItem productItem={item} key={item?.id} />
+									<WishlistItem productItem={item} key={item?.id} />
 								))}
 							</div>
 						</div>
 					</div>
 				</div>
 			)}
-			<RecommendedProducts inventory={inventory} title={"Most Popular"} subtitle={"See the most popular items"} />
-			<RecommendedProducts inventory={inventory} title={"Recently Updated"} subtitle={"See the most recently updated items."} />
+
+			<div className="p-3 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center ">
+				<h1 className=" text-2xl sm:text-3xl font-bold tracking-tight mb-2">Most Popular</h1>
+				<p>See the most popular items.</p>
+				<div>
+					<div className="mx-auto max-w-2xl py-8 px-4 sm:py-0 sm:px-6 lg:max-w-7xl lg:px-8">
+						<div className="mt-6 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+							{products?.slice(0, 4).map((item) => (
+								<RecommendedProductItem productItem={item} key={item?.id} />
+							))}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div className="p-3 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center ">
+				<h1 className=" text-2xl sm:text-3xl font-bold tracking-tigh mb-2">Recently Updated</h1>
+				<p>See the most recently updated items.</p>
+				<div>
+					<div className="mx-auto max-w-2xl py-8 px-4 sm:py-12 sm:px-6 lg:max-w-7xl lg:px-8">
+						<div className="mt-6 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+							{inventory?.map((item) => (
+								<RecentlyUpdatedItem inventoryItem={item} key={item?.id} />
+							))}
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 }
