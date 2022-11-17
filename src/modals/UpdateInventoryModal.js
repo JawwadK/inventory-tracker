@@ -76,7 +76,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 				price: price,
 				quantity: quantity,
 				timestamp: serverTimestamp(),
-			}).then(resetModal());
+			});
 		}
 		// Add inventory update entry in historical for price tracking
 		await addDoc(collection(db, `historical_inventory`), {
@@ -152,7 +152,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 																	></Combobox.Input>
 																	{queryStore && (
 																		<span className="flex items-center absolute inset-y-0 left-0">
-																			<img src={filteredStores[0]?.image} alt="" className="h-6 w-6 ml-3 flex-shrink-0 rounded-md" />
+																			<img src={filteredStores[0]?.image} alt="" className="h-6 w-6 ml-3 flex-shrink-0 rounded-md object-cover" />
 																		</span>
 																	)}
 																	<Transition show={open} as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
@@ -170,7 +170,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 																				>
 																					{({ selectedStore }) => (
 																						<div className="flex items-center">
-																							<img src={store?.image} alt="" className="h-6 w-6 flex-shrink-0 rounded-md" />
+																							<img src={store?.image} alt="" className="h-6 w-6 flex-shrink-0 rounded-md object-cover" />
 																							<span className={classNames(selectedStore ? "font-semibold" : "font-normal", "ml-3 block truncate")}>
 																								<span className="font-semibold">{store?.name}</span> - {store?.address}
 																							</span>
@@ -203,7 +203,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 																	></Combobox.Input>
 																	{queryProduct && (
 																		<span className="flex items-center absolute inset-y-0 left-0">
-																			<img src={filteredProducts[0]?.image} alt="" className="h-6 w-6 ml-3 flex-shrink-0 rounded-md" />
+																			<img src={filteredProducts[0]?.image} alt="" className="h-6 w-6 ml-3 flex-shrink-0 rounded-md object-cover" />
 																		</span>
 																	)}
 																	<Transition show={open} as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
@@ -221,7 +221,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 																				>
 																					{({ selectedProduct }) => (
 																						<div className="flex items-center">
-																							<img src={product?.image} alt="" className="h-6 w-6 flex-shrink-0 rounded-md" />
+																							<img src={product?.image} alt="" className="h-6 w-6 flex-shrink-0 rounded-md object-cover" />
 																							<span className={classNames(selectedProduct ? "font-semibold" : "font-normal", "ml-3 block truncate")}>
 																								{product?.name}
 																							</span>

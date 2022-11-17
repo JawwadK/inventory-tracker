@@ -6,13 +6,17 @@ import { db } from "../utilities/firebase";
 import RecommendedProducts from "../components/RecommendedProducts";
 
 import { Link, useNavigate } from "react-router-dom";
+import { useFirestore } from "../contexts/FirestoreContext";
+import ProductItem from "../components/ProductItem";
 
 export default function SearchPage() {
 	const [products, setProducts] = useState();
 	const [inventory, setInventory] = useState(null);
+	const [wishlist, setWishList] = useState(null);
 	const [selectedProduct, setSelectedProduct] = useState(null);
 	const [queryProduct, setQueryProduct] = useState("");
 	const navigate = useNavigate();
+	const { user } = useFirestore();
 
 	const filteredProducts =
 		queryProduct === ""
@@ -38,6 +42,15 @@ export default function SearchPage() {
 			unsubscribe();
 		};
 	}, []);
+
+	useEffect(() => {
+		const unsubscribe = onSnapshot(query(collection(db, "users", user.id, "wishlist"), limit(4)), (snapshot) => {
+			setWishList(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+		});
+		return () => {
+			unsubscribe();
+		};
+	}, [user.id]);
 
 	useEffect(() => {
 		if (selectedProduct) {
@@ -87,7 +100,7 @@ export default function SearchPage() {
 													>
 														{({ selectedProduct }) => (
 															<div className="flex items-center">
-																<img src={product?.image} alt="" className="h-6 w-6 flex-shrink-0 rounded-md" />
+																<img src={product?.image} alt={product?.name} className="h-6 w-6 flex-shrink-0 rounded-md object-cover" />
 																<span className={classNames(selectedProduct ? "font-semibold" : "font-normal", "ml-3 block truncate")}>{product?.name}</span>
 															</div>
 														)}
@@ -102,9 +115,24 @@ export default function SearchPage() {
 					</Combobox>
 				</div>
 			</header>
-			<RecommendedProducts inventory={inventory} title={"Your Watchlist"} subtitle={"See updates with products in your Watchlist."} />
-			<RecommendedProducts inventory={inventory} title={"Most Popular"} subtitle={"See updates with products in your Watchlist."} />
-			<RecommendedProducts inventory={inventory} title={"Recently Updated"} subtitle={"See updates with products in your Watchlist."} />
+			{/* <RecommendedProducts inventory={wishlist} title={"Your Wishlist"} subtitle={"See updates with products in your Wishlist."} /> */}
+			{wishlist?.length > 0 && (
+				<div className="p-3 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center ">
+					<h1 className=" text-2xl sm:text-3xl font-bold tracking-tight mb-2">Your Wishlist</h1>
+					<p>See updates with products in your Wishlist.</p>
+					<div>
+						<div className="mx-auto max-w-2xl py-8 px-4 sm:py-0 sm:px-6 lg:max-w-7xl lg:px-8">
+							<div className="mt-6 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+								{wishlist?.map((item) => (
+									<ProductItem productItem={item} key={item?.id} />
+								))}
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
+			<RecommendedProducts inventory={inventory} title={"Most Popular"} subtitle={"See the most popular items"} />
+			<RecommendedProducts inventory={inventory} title={"Recently Updated"} subtitle={"See the most recently updated items."} />
 		</div>
 	);
 }
