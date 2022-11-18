@@ -1,25 +1,10 @@
 import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, TimeScale } from "chart.js";
 import { useParams } from "react-router-dom";
 import { db } from "../utilities/firebase";
-import "chartjs-adapter-moment";
 import { PencilIcon } from "@heroicons/react/24/outline";
 import { useFirestore } from "../contexts/FirestoreContext";
 import AddStoreModal from "../modals/AddStoreModal";
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, TimeScale);
-export const options = {
-	responsive: true,
-	scales: {
-		x: {
-			type: "time",
-			time: {
-				unit: "day",
-			},
-		},
-	},
-};
 
 export default function StorePage() {
 	const { storeId } = useParams();
