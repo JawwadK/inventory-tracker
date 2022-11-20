@@ -26,10 +26,6 @@ export default function StoreItem({ inventoryItem }) {
 							<span className="font-bold text-lg">{store?.name}</span>
 							<br />
 							{store?.address}
-							<br />
-							{store?.city}, {store?.province}
-							<br />
-							{store?.postal}
 						</Link>
 					</h3>
 					<p className="mt-1 text-sm text-gray-500">Quantity: {inventoryItem?.quantity}</p>

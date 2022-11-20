@@ -1,22 +1,48 @@
-import { Dialog, Transition } from "@headlessui/react";
+import { Combobox, Dialog, Transition } from "@headlessui/react";
 import imageCompression from "browser-image-compression";
 import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { useFirestore } from "../contexts/FirestoreContext";
 import { db, storage } from "../utilities/firebase";
+import useGoogle from "react-google-autocomplete/lib/usePlacesAutocompleteService";
+import axios from "axios";
 
 export default function AddStoreModal({ open, setOpen, store }) {
 	const cancelButtonRef = useRef(null);
 	const [name, setName] = useState("");
-	const [address, setAddress] = useState("");
-	const [city, setCity] = useState("");
-	const [province, setProvince] = useState("");
-	const [postal, setPostal] = useState("");
 	const [file, setFile] = useState("");
 	const [fileName, setFileName] = useState("");
 	const [progress, setProgress] = useState(0);
+	const [place, setPlace] = useState(null);
+	const [placeId, setPlaceId] = useState("");
+	const [address, setAddress] = useState("");
+
 	const { user } = useFirestore();
+
+	function classNames(...classes) {
+		return classes.filter(Boolean).join(" ");
+	}
+
+	useEffect(() => {
+		if (place) {
+			setPlaceId(place.place_id);
+			axios
+				.get(`https://maps.googleapis.com/maps/api/geocode/json?place_id=${place.place_id}&fields=name,formatted_address&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`)
+				.then(({ data }) => {
+					console.log(data);
+					setAddress(data.results[0].formatted_address);
+				});
+		}
+	}, [place]);
+
+	const { placePredictions, getPlacePredictions } = useGoogle({
+		apiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+		options: {
+			types: ["establishment"],
+			fields: ["formatted_address", "address_components"],
+		},
+	});
 
 	const handleFileChange = async (e) => {
 		const options = {
@@ -37,19 +63,13 @@ export default function AddStoreModal({ open, setOpen, store }) {
 	useEffect(() => {
 		if (store) {
 			setName(store.name);
-			setAddress(store.address);
-			setCity(store.city);
-			setProvince(store.province);
-			setPostal(store.postal);
+			setPlace(store.place);
 		}
 	}, [store]);
 
 	function resetModal() {
 		setName("");
-		setAddress("");
-		setCity("");
-		setProvince("");
-		setPostal("");
+		setPlace("");
 		setFile("");
 		setFileName("");
 		setProgress(0);
@@ -105,10 +125,9 @@ export default function AddStoreModal({ open, setOpen, store }) {
 							store
 								? await updateDoc(doc(db, `stores`, store.id), {
 										name: name,
+										place: place,
+										place_id: placeId,
 										address: address,
-										city: city,
-										province: province,
-										postal: postal,
 										timestamp: serverTimestamp(),
 										image: downloadURL,
 								  }).then(async () => {
@@ -122,10 +141,9 @@ export default function AddStoreModal({ open, setOpen, store }) {
 								  })
 								: await addDoc(collection(db, `stores`), {
 										name: name,
+										place: place,
+										place_id: placeId,
 										address: address,
-										city: city,
-										province: province,
-										postal: postal,
 										timestamp: serverTimestamp(),
 										image: downloadURL,
 								  }).then(async (docRef) => {
@@ -142,10 +160,9 @@ export default function AddStoreModal({ open, setOpen, store }) {
 			  ) // Case for when editing a product without image
 			: await updateDoc(doc(db, `stores`, store.id), {
 					name: name,
+					place: place,
+					place_id: placeId,
 					address: address,
-					city: city,
-					province: province,
-					postal: postal,
 					timestamp: serverTimestamp(),
 			  }).then(async () => {
 					resetModal();
@@ -225,72 +242,66 @@ export default function AddStoreModal({ open, setOpen, store }) {
 														onChange={(e) => setName(e.target.value)}
 													/>
 												</div>
-
 												<div className="col-span-6">
-													<label htmlFor="street-address" className="block text-sm font-medium text-gray-700">
-														Street address
-													</label>
-													<input
-														type="text"
-														name="street-address"
-														id="street-address"
-														autoComplete="street-address"
-														required
-														className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-														value={address}
-														onChange={(e) => setAddress(e.target.value)}
-													/>
-												</div>
+													<div className="relative">
+														<Combobox value={place} onChange={setPlace}>
+															{({ open }) => (
+																<>
+																	<Combobox.Label className="block text-sm font-medium text-gray-700">Search for store</Combobox.Label>
 
-												<div className="col-span-6 sm:col-span-6 lg:col-span-2">
-													<label htmlFor="city" className="block text-sm font-medium text-gray-700">
-														City
-													</label>
-													<input
-														type="text"
-														name="city"
-														id="city"
-														required
-														autoComplete="address-level2"
-														className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-														value={city}
-														onChange={(e) => setCity(e.target.value)}
-													/>
-												</div>
-
-												<div className="col-span-6 sm:col-span-3 lg:col-span-2">
-													<label htmlFor="region" className="block text-sm font-medium text-gray-700">
-														Province
-													</label>
-													<input
-														type="text"
-														name="region"
-														id="region"
-														required
-														autoComplete="address-level1"
-														className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-														value={province}
-														onChange={(e) => setProvince(e.target.value)}
-													/>
-												</div>
-
-												<div className="col-span-6 sm:col-span-3 lg:col-span-2">
-													<label htmlFor="postal-code" className="block text-sm font-medium text-gray-700">
-														Postal code
-													</label>
-													<input
-														type="text"
-														name="postal-code"
-														id="postal-code"
-														required
-														autoComplete="postal-code"
-														className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-														value={postal}
-														onChange={(e) => setPostal(e.target.value)}
-													/>
+																	<div className="relative mt-1">
+																		<Combobox.Input
+																			onChange={(e) => {
+																				getPlacePredictions({ input: e.target.value });
+																			}}
+																			type="text"
+																			name="address"
+																			id="address"
+																			placeholder="Search for store"
+																			autoComplete="address"
+																			displayValue={(prediction) => prediction?.description}
+																			className="cursor-text relative w-full rounded-md border border-gray-300 bg-white py-2 text-left shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+																		></Combobox.Input>
+																		<Transition show={open} as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
+																			<Combobox.Options className="absolute z-20 mt-1 max-h-20 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+																				{placePredictions.map((prediction, id) => (
+																					<Combobox.Option
+																						key={id}
+																						className={({ active }) =>
+																							classNames(
+																								active ? "text-white bg-indigo-600" : "text-gray-900",
+																								"relative cursor-pointer select-none py-2 pl-3 pr-9"
+																							)
+																						}
+																						value={prediction}
+																					>
+																						{({ selectedPrediction }) => (
+																							<div className="flex items-center">
+																								<span className={classNames(selectedPrediction ? "font-semibold" : "font-normal", "block truncate")}>
+																									<span className="font-semibold">{prediction?.description}</span>
+																								</span>
+																							</div>
+																						)}
+																					</Combobox.Option>
+																				))}
+																			</Combobox.Options>
+																		</Transition>
+																	</div>
+																</>
+															)}
+														</Combobox>
+													</div>
 												</div>
 											</div>
 										</div>
+										{place && (
+											<iframe
+												className="w-full h-80 mt-4"
+												title="Store Map"
+												style={{ border: 0 }}
+												src={`https://www.google.com/maps/embed/v1/place?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}&q=place_id:${place?.place_id}`}
+											></iframe>
+										)}
 										<div className="w-full bg-gray-200 h-1 mt-2">
 											<div className="bg-blue-600 h-1 rounded-md" style={{ width: `${progress}%` }}></div>
 										</div>
