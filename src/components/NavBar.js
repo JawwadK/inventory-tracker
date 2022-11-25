@@ -135,17 +135,19 @@ export default function NavBar() {
 							>
 								Search
 							</Disclosure.Button>
-							<Disclosure.Button
-								as={Link}
-								to="/administration"
-								className={classNames(
-									selected ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white",
-									"block px-3 py-2 rounded-md text-base font-medium no-underline"
-								)}
-								aria-current={selected ? "page" : undefined}
-							>
-								Administration
-							</Disclosure.Button>
+							{user.isAdmin === true && (
+								<Disclosure.Button
+									as={Link}
+									to="/administration"
+									className={classNames(
+										selected ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white",
+										"block px-3 py-2 rounded-md text-base font-medium no-underline"
+									)}
+									aria-current={selected ? "page" : undefined}
+								>
+									Administration
+								</Disclosure.Button>
+							)}
 						</div>
 					</Disclosure.Panel>
 				</>
