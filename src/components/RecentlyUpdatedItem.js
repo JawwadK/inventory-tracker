@@ -15,8 +15,8 @@ export default function RecentlyUpdatedItem({ inventoryItem }) {
 
 	return (
 		<div className="group relative">
-			<div className="min-h-80 aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:aspect-none lg:h-80">
-				<img src={product?.image} alt={product?.name} className="h-full w-full object-cover object-center lg:h-full lg:w-full" />
+			<div className="min-h-80 flex items-center justify-center w-full overflow-hidden rounded-md bg-white group-hover:opacity-75 sm:h-80">
+				<img src={product?.image} alt={product?.name} className="object-cover object-center" />
 			</div>
 			<div className="mt-4 flex justify-between">
 				<div className="text-left">
