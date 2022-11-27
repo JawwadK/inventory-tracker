@@ -29,10 +29,12 @@ export default function NavBar() {
 							</div>
 							<div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
 								<div className="flex flex-shrink-0 items-center">
-									<Link className="block w-auto lg:hidden text-2xl text-white" to="/" alt="Inventory Tracker">
+									<img className="block h-8 w-auto lg:hidden" src="inventory-tracker-512x512.png" alt="Your Company" />
+									<img className="hidden h-8 w-auto lg:block" src="inventory-tracker-512x512.png" alt="Your Company" />
+									<Link className="block w-auto lg:hidden text-2xl ml-3 text-white" to="/" alt="Inventory Tracker">
 										Inventory Tracker
 									</Link>
-									<Link className="hidden w-auto lg:block text-2xl text-white" to="/" alt="Inventory Tracker">
+									<Link className="hidden w-auto lg:block text-2xl ml-3 text-white" to="/" alt="Inventory Tracker">
 										Inventory Tracker
 									</Link>
 								</div>
