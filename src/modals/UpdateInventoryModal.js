@@ -181,7 +181,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 																		displayValue={(store) => store?.name}
 																		className="cursor-text relative w-full rounded-md border border-gray-300 bg-white py-2 pl-11 text-left shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
 																	></Combobox.Input>
-																	{queryStore && (
+																	{queryStore && filteredStores.length > 0 && (
 																		<span className="flex items-center absolute inset-y-0 left-0">
 																			<img src={filteredStores[0]?.image} alt="" className="h-6 w-6 ml-3 flex-shrink-0 rounded-md object-cover" />
 																		</span>
@@ -232,7 +232,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 																		displayValue={(product) => product?.name}
 																		className="cursor-text relative w-full rounded-md border border-gray-300 bg-white py-2 pl-12 text-left shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
 																	></Combobox.Input>
-																	{queryProduct && (
+																	{queryProduct && filteredProducts.length > 0 && (
 																		<span className="flex items-center absolute inset-y-0 left-0">
 																			<img src={filteredProducts[0]?.image} alt="" className="h-6 w-6 ml-3 flex-shrink-0 rounded-md object-cover" />
 																		</span>
