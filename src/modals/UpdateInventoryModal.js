@@ -20,7 +20,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 	const { user } = useFirestore();
 
 	useEffect(() => {
-		const unsubscribe = onSnapshot(query(collection(db, `products`), where("discontinued", "!=", true)), (snapshot) => {
+		const unsubscribe = onSnapshot(query(collection(db, `products`)), (snapshot) => {
 			setProducts(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
 		});
 		return () => {
