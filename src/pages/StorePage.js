@@ -5,22 +5,49 @@ import { db } from "../utilities/firebase";
 import { PencilIcon } from "@heroicons/react/24/outline";
 import { useFirestore } from "../contexts/FirestoreContext";
 import AddStoreModal from "../modals/AddStoreModal";
+import axios from "axios";
 
 export default function StorePage() {
 	const { storeId } = useParams();
 	const [store, setStore] = useState(null);
 	const [addStoreModalOpen, setAddStoreModalOpen] = useState(false);
+
+	const [latitude, setLatitude] = useState(null);
+	const [longitude, setLongitude] = useState(null);
+	const [distance, setDistance] = useState(null);
+
 	const { user } = useFirestore();
 
 	useEffect(() => {
-		async function getProductInfo() {
+		async function getStoreInfo() {
 			const storeInfo = await getDoc(doc(db, "stores", storeId));
 			if (storeInfo.exists()) {
 				setStore({ ...storeInfo.data(), id: storeInfo.id });
 			}
 		}
-		getProductInfo();
+		getStoreInfo();
 	}, [storeId, addStoreModalOpen]);
+
+	useEffect(() => {
+		navigator.geolocation.getCurrentPosition((position) => {
+			setLatitude(position.coords.latitude);
+			setLongitude(position.coords.longitude);
+			console.log("Latitude is :", position.coords.latitude);
+			console.log("Longitude is :", position.coords.longitude);
+		});
+	}, []);
+
+	useEffect(() => {
+		if (latitude && longitude && store?.place_id) {
+			axios
+				.get(
+					`https://cors-anywhere.seyons-account.workers.dev/https://maps.googleapis.com/maps/api/directions/json?origin=${latitude},${longitude}&destination=place_id:${store?.place_id}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
+				)
+				.then(({ data }) => {
+					setDistance(data?.routes[0]?.legs[0]?.distance?.text);
+				});
+		}
+	}, [latitude, longitude, store?.place_id]);
 
 	useEffect(() => {
 		document.title = `${store?.name} | Inventory Tracker`;
@@ -42,6 +69,7 @@ export default function StorePage() {
 
 					<h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{store?.name}</h2>
 					<p className="mt-4 text-gray-500">{store?.address}</p>
+					{distance && <p className="text-sm font-medium text-gray-900">{`${distance} away`}</p>}
 					{store?.place_id && (
 						<iframe
 							className="w-full h-96 mt-4"
