@@ -37,6 +37,23 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 		};
 	}, []);
 
+	useEffect(() => {
+		if (selectedStore && selectedProduct) {
+			setPrice(0.0);
+			setQuantity(0);
+			const unsubscribe = onSnapshot(
+				query(collection(db, `inventory`), where("productRef", "==", doc(db, "products", selectedProduct?.id)), where("storeRef", "==", doc(db, "stores", selectedStore?.id))),
+				(snapshot) => {
+					setPrice(snapshot.docs[0]?.data()?.price);
+					setQuantity(snapshot.docs[0]?.data()?.quantity);
+				}
+			);
+			return () => {
+				unsubscribe();
+			};
+		}
+	}, [selectedStore, selectedProduct]);
+
 	function resetModal() {
 		setSelectedStore(null);
 		setSelectedProduct(null);
