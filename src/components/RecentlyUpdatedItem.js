@@ -27,6 +27,7 @@ export default function RecentlyUpdatedItem({ inventoryItem }) {
 						</Link>
 					</h3>
 					<p className="mt-1 text-sm text-gray-500">Quantity: {inventoryItem?.quantity}</p>
+					{product?.discontinued && <p className="mt-1 text-sm text-gray-500 font-bold">DISCONTINUED</p>}
 				</div>
 				<p className="text-sm font-medium text-gray-900">{`$${inventoryItem?.price}`}</p>
 			</div>

@@ -28,10 +28,10 @@ export default function RecommendedProductItem({ productItem }) {
 							{productItem?.name}
 						</Link>
 					</h3>
-					{}
 					<p className="mt-1 text-sm text-gray-500">
 						Quantity: {inventory?.length > 0 ? inventory?.sort((a, b) => (a.price > b.price ? 1 : -1))[0]?.quantity : <span className="font-semibold">Out Of Stock</span>}
 					</p>
+					{productItem?.discontinued && <p className="mt-1 text-sm text-gray-500 font-bold">DISCONTINUED</p>}
 				</div>
 				<p className="text-sm font-medium text-gray-900">{inventory?.length > 0 ? `$${inventory?.sort((a, b) => (a.price > b.price ? 1 : -1))[0]?.price}` : ""}</p>
 			</div>

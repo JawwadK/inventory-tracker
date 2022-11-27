@@ -30,7 +30,6 @@ export default function AddStoreModal({ open, setOpen, store }) {
 			axios
 				.get(`https://maps.googleapis.com/maps/api/geocode/json?place_id=${place.place_id}&fields=name,formatted_address&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`)
 				.then(({ data }) => {
-					console.log(data);
 					setAddress(data.results[0].formatted_address);
 				});
 		}

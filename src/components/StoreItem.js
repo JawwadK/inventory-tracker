@@ -28,7 +28,7 @@ export default function StoreItem({ inventoryItem }) {
 							{store?.address}
 						</Link>
 					</h3>
-					<p className="mt-1 text-sm text-gray-500">Quantity: {inventoryItem?.quantity}</p>
+					<p className="mt-1 text-sm text-gray-500">Quantity: {inventoryItem?.quantity > 0 ? inventoryItem?.quantity : <span className="font-semibold">Out Of Stock</span>}</p>
 				</div>
 				<p className="text-lg font-medium text-gray-900">{`$${inventoryItem?.price}`}</p>
 			</div>

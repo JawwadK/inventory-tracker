@@ -11,6 +11,7 @@ export default function AddProductModal({ open, setOpen, product }) {
 	const [name, setName] = useState("");
 	const [upc, setUpc] = useState("");
 	const [description, setDescription] = useState("");
+	const [discontinued, setDiscontinued] = useState(false);
 	const [file, setFile] = useState("");
 	const [fileName, setFileName] = useState("");
 	const [progress, setProgress] = useState(0);
@@ -37,6 +38,7 @@ export default function AddProductModal({ open, setOpen, product }) {
 			setName(product.name);
 			setUpc(product.upc);
 			setDescription(product.description);
+			setDiscontinued(product.discontinued || false);
 		}
 	}, [product]);
 
@@ -44,6 +46,7 @@ export default function AddProductModal({ open, setOpen, product }) {
 		setName("");
 		setUpc("");
 		setDescription("");
+		setDiscontinued(false);
 		setFile("");
 		setFileName("");
 		setProgress(0);
@@ -103,6 +106,7 @@ export default function AddProductModal({ open, setOpen, product }) {
 											user: user?.name,
 											action: "Edit Product",
 											id: upc,
+											discontinued: discontinued,
 											timestamp: serverTimestamp(),
 										});
 								  })
@@ -123,6 +127,7 @@ export default function AddProductModal({ open, setOpen, product }) {
 					name: name,
 					upc: upc,
 					description: description,
+					discontinued: discontinued,
 					timestamp: serverTimestamp(),
 			  }).then(async () => {
 					resetModal();
@@ -223,6 +228,26 @@ export default function AddProductModal({ open, setOpen, product }) {
 													required
 													onChange={(e) => setDescription(e.target.value)}
 												/>
+											</div>
+											<div className="my-2 flex items-start">
+												<div className="flex h-5 items-center">
+													<input
+														id="discontinued"
+														name="discontinued"
+														type="checkbox"
+														checked={discontinued}
+														onChange={() => setDiscontinued(!discontinued)}
+														className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+													/>
+												</div>
+												<div className="ml-3 text-sm">
+													<label htmlFor="discontinued" className="font-medium text-gray-700">
+														Discontinued?
+													</label>
+													<p className="text-gray-500">
+														Mark product as obsolete/discontinued. This will make this product inactive and inventory information can not be updated.
+													</p>
+												</div>
 											</div>
 										</div>
 										<div className="w-full bg-gray-200 h-1">

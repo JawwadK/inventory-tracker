@@ -26,7 +26,6 @@ export default function WishlistItem({ productItem }) {
 
 	return (
 		<div className="group relative">
-			{console.log(inventory)}
 			<div className="min-h-80 flex items-center justify-center w-full overflow-hidden rounded-md bg-white group-hover:opacity-75 sm:h-80">
 				<img src={product?.image} alt={product?.name} className="object-cover object-center" />
 			</div>
@@ -42,6 +41,7 @@ export default function WishlistItem({ productItem }) {
 					<p className="mt-1 text-sm text-gray-500">
 						Quantity: {inventory?.length > 0 ? inventory?.sort((a, b) => (a.price > b.price ? 1 : -1))[0]?.quantity : <span className="font-semibold">Out Of Stock</span>}
 					</p>
+					{product?.discontinued && <p className="mt-1 text-sm text-gray-500 font-bold">DISCONTINUED</p>}
 				</div>
 				<p className="text-sm font-medium text-gray-900">{inventory?.length > 0 ? `$${inventory?.sort((a, b) => (a.price > b.price ? 1 : -1))[0]?.price}` : ""}</p>
 			</div>
