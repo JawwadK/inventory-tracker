@@ -85,6 +85,7 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 			await updateDoc(doc(db, "inventory", inventoryItemId), {
 				price: price,
 				quantity: quantity,
+				timestamp: serverTimestamp(),
 			}).then(async () => {
 				await addDoc(collection(db, "logs"), {
 					user: user?.name,
