@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import { useFirestore } from "../contexts/FirestoreContext";
 import DeleteAccountModal from "../modals/DeleteAccountModal";
 import { storage } from "../utilities/firebase";
+import toast from "react-hot-toast";
 
 export default function AccountManagementPage() {
 	const { user, updateUserInfo, updatePassword, logout } = useFirestore();
@@ -77,7 +78,7 @@ export default function AccountManagementPage() {
 					(snapshot) => {
 						// Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
 						const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-						console.log("Upload is " + progress + "% done");
+						toast.loading("Upload is " + progress + "% done", { id: "upload" });
 						switch (snapshot.state) {
 							case "paused":
 								console.log("Upload is paused");
@@ -110,6 +111,7 @@ export default function AccountManagementPage() {
 					() => {
 						// Upload completed successfully, now we can get the download URL
 						getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+							toast.success("File uploaded successfully", { id: "upload" });
 							console.log("File available at", downloadURL);
 							setPhotoURL(downloadURL);
 							await updateUserInfo(name, email, downloadURL);
@@ -167,7 +169,6 @@ export default function AccountManagementPage() {
 													aria-describedby="file_input_help"
 													id="file_input"
 													type="file"
-													required
 													accept="image/*"
 													onChange={handleFileChange}
 												></input>

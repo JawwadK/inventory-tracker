@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { db } from "../utilities/firebase";
 import { query, doc, where, collection, getDoc, updateDoc, getDocs, setDoc, deleteDoc } from "firebase/firestore";
+import toast from "react-hot-toast";
 
 const FirestoreContext = createContext();
 
@@ -17,17 +18,14 @@ export function FirestoreProvider({ children }) {
 		const docSnap = await getDoc(docRef);
 
 		if (docSnap.exists()) {
-			console.log("User data:", docSnap.data());
 			setUser({ ...docSnap.data(), id: docSnap.id });
-		} else {
-			// doc.data() will be undefined in this case
-			console.log("No user found!");
 		}
 	}
 
 	function logout() {
 		setUser(null);
 		localStorage.removeItem("user");
+		toast.success("Logged out successfully");
 	}
 
 	function randomString() {
@@ -51,12 +49,12 @@ export function FirestoreProvider({ children }) {
 				uid: uid,
 				photoURL: `https://avatars.dicebear.com/api/initials/${name?.trim()}.svg`,
 			});
-			alert("registered successfully");
+			toast.success("Registered successfully");
 			await fetchUser(email);
 			localStorage.setItem("user", uid);
 		} else {
 			// User already exists
-			console.log("User already exists. Please log in.");
+			toast.error("User already exists. Please log in.");
 		}
 	}
 
@@ -73,14 +71,14 @@ export function FirestoreProvider({ children }) {
 				} else {
 					localStorage.removeItem("email");
 				}
-				alert("logged in successfully");
+				toast.success("Logged in successfully.");
 			} else {
 				// Password is incorrect
-				alert("Email or Password is incorrect. Please try again.");
+				toast.error("Email or Password is incorrect.");
 			}
 		} else {
 			// User does not exists (still show password incorrect message)
-			alert("Email or Password is incorrect. Please try again.");
+			toast.error("Email or Password is incorrect.");
 		}
 	}
 
@@ -91,10 +89,10 @@ export function FirestoreProvider({ children }) {
 		if (docSnap.exists()) {
 			await deleteDoc(docRef);
 			logout();
-			alert("Account deleted successfully");
+			toast.success("Account deleted successfully.");
 		} else {
 			// User does not exist
-			console.log("User does not exist or is already deleted.");
+			toast.error("User does not exist or is already deleted.");
 		}
 	}
 
@@ -108,10 +106,10 @@ export function FirestoreProvider({ children }) {
 				email: email,
 				photoURL: photoURL,
 			});
-			alert("Account information updated successfully");
+			toast.success("Account information updated successfully");
 		} else {
 			// User does not exist
-			console.log("User does not exist. Cant update user information.");
+			toast.error("User does not exist. Cant update user information.");
 		}
 	}
 
@@ -125,14 +123,14 @@ export function FirestoreProvider({ children }) {
 					password: password,
 				});
 				logout();
-				alert("Password updated successfully");
+				toast.success("Password updated successfully");
 			} else {
 				// User does not exist
-				console.log("User does not exist. Cant update password information.");
+				toast.error("User does not exist. Cant update password information.");
 			}
 		} else {
 			// Password is incorrect
-			alert("Current password is incorrect. Please try again.");
+			toast.error("Current password is incorrect. Please try again.");
 		}
 	}
 

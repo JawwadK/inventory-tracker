@@ -10,6 +10,7 @@ import { ChevronLeftIcon, ChevronRightIcon, PencilIcon } from "@heroicons/react/
 import AddProductModal from "../modals/AddProductModal";
 import { PlusIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { useFirestore } from "../contexts/FirestoreContext";
+import toast from "react-hot-toast";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, TimeScale);
 export const options = {
@@ -102,11 +103,13 @@ export default function ProductPage() {
 	async function handleAddToWishlist() {
 		if (inWishlist) {
 			await deleteDoc(doc(db, "users", user.id, "wishlist", productId));
+			toast.success("Removed from wishlist successfully!");
 			setInWishList(false);
 		} else {
 			await setDoc(doc(db, "users", user.id, "wishlist", productId), {
 				productRef: doc(db, "products", productId),
 			});
+			toast.success("Added to wishlist successfully!");
 			setInWishList(true);
 		}
 	}

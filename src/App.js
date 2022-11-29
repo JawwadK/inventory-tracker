@@ -11,12 +11,20 @@ import AdministrationPage from "./pages/AdministrationPage";
 import Footer from "./components/Footer";
 import ProductPage from "./pages/ProductPage";
 import StorePage from "./pages/StorePage";
+import { Toaster } from "react-hot-toast";
 
 function App() {
 	const { user } = useFirestore();
 
 	return (
 		<BrowserRouter>
+			<Toaster
+				position="top-center"
+				reverseOrder={false}
+				toastOptions={{
+					duration: 4000,
+				}}
+			/>
 			<Routes>
 				<Route path="/signup" element={!user ? <AuthenticationPage authComponent={<SignUp />} /> : <Navigate to="/" replace />} />
 				<Route path="/login" element={!user ? <AuthenticationPage authComponent={<Login />} /> : <Navigate to="/" replace />} />

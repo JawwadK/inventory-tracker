@@ -1,6 +1,7 @@
 import { Combobox, Dialog, Transition } from "@headlessui/react";
 import { addDoc, collection, doc, getDocs, limit, onSnapshot, query, serverTimestamp, updateDoc, where } from "firebase/firestore";
 import React, { Fragment, useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import { useFirestore } from "../contexts/FirestoreContext";
 import { db } from "../utilities/firebase";
 
@@ -118,6 +119,8 @@ export default function UpdateInventoryModal({ open, setOpen }) {
 			quantity: quantity,
 			timestamp: serverTimestamp(),
 		}).then(resetModal());
+
+		toast.success("Inventory updated successfully!");
 	}
 
 	const filteredStores =

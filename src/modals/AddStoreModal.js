@@ -7,6 +7,7 @@ import { useFirestore } from "../contexts/FirestoreContext";
 import { db, storage } from "../utilities/firebase";
 import useGoogle from "react-google-autocomplete/lib/usePlacesAutocompleteService";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function AddStoreModal({ open, setOpen, store }) {
 	const cancelButtonRef = useRef(null);
@@ -86,7 +87,7 @@ export default function AddStoreModal({ open, setOpen, store }) {
 					(snapshot) => {
 						// Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
 						const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-						console.log("Upload is " + progress + "% done");
+						toast.loading("Upload is " + progress + "% done", { id: "upload" });
 						switch (snapshot.state) {
 							case "paused":
 								console.log("Upload is paused");
@@ -120,6 +121,7 @@ export default function AddStoreModal({ open, setOpen, store }) {
 					() => {
 						// Upload completed successfully, now we can get the download URL
 						getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+							toast.success("File uploaded successfully", { id: "upload" });
 							console.log("File available at", downloadURL);
 							store
 								? await updateDoc(doc(db, `stores`, store.id), {
@@ -172,6 +174,7 @@ export default function AddStoreModal({ open, setOpen, store }) {
 						timestamp: serverTimestamp(),
 					});
 			  });
+		toast.success("Store added/updated successfully!");
 	}
 
 	return (

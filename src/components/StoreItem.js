@@ -13,8 +13,6 @@ export default function StoreItem({ inventoryItem }) {
 		navigator.geolocation.getCurrentPosition((position) => {
 			setLatitude(position.coords.latitude);
 			setLongitude(position.coords.longitude);
-			console.log("Latitude is :", position.coords.latitude);
-			console.log("Longitude is :", position.coords.longitude);
 		});
 	}, []);
 
