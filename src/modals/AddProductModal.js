@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import imageCompression from "browser-image-compression";
 import { Dialog, Transition } from "@headlessui/react";
-import { addDoc, collection, doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { db, storage } from "../utilities/firebase";
 import { useFirestore } from "../contexts/FirestoreContext";
@@ -56,6 +56,14 @@ export default function AddProductModal({ open, setOpen, product }) {
 
 	async function handleSave(e) {
 		e.preventDefault();
+
+		const docRef = doc(db, "products", upc);
+		const docSnap = await getDoc(docRef);
+
+		if (docSnap.exists()) {
+			toast.error("Product already exists");
+			return;
+		}
 		const storageRef = ref(storage, `products/${Math.floor(Math.random() * (9999 - 1000)) + 1000}-${fileName}`);
 		const uploadTask = file && uploadBytesResumable(storageRef, file);
 
