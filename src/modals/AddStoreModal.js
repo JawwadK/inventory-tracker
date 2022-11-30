@@ -1,6 +1,6 @@
 import { Combobox, Dialog, Transition } from "@headlessui/react";
 import imageCompression from "browser-image-compression";
-import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDocs, query, serverTimestamp, updateDoc, where } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { useFirestore } from "../contexts/FirestoreContext";
@@ -79,6 +79,16 @@ export default function AddStoreModal({ open, setOpen, store }) {
 
 	async function handleSave(e) {
 		e.preventDefault();
+
+		const query_ = query(collection(db, `stores`), where("address", "==", address));
+		const querySnapshot = await getDocs(query_);
+		const storeExists = querySnapshot.docs.length > 0;
+
+		if (!store && storeExists) {
+			toast.error("Store already exists");
+			return;
+		}
+
 		const storageRef = ref(storage, `stores/${Math.floor(Math.random() * (9999 - 1000)) + 1000}-${fileName}`);
 		const uploadTask = file && uploadBytesResumable(storageRef, file);
 
