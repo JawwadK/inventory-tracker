@@ -60,7 +60,7 @@ export default function AddProductModal({ open, setOpen, product }) {
 		const docRef = doc(db, "products", upc);
 		const docSnap = await getDoc(docRef);
 
-		if (docSnap.exists()) {
+		if (!product && docSnap.exists()) {
 			toast.error("Product already exists");
 			return;
 		}
