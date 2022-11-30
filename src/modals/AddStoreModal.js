@@ -40,6 +40,7 @@ export default function AddStoreModal({ open, setOpen, store }) {
 		apiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
 		options: {
 			types: ["establishment"],
+			componentRestrictions: { country: "ca" },
 			fields: ["formatted_address", "address_components"],
 		},
 	});
