@@ -8,7 +8,7 @@ import { storage } from "../utilities/firebase";
 import toast from "react-hot-toast";
 
 export default function AccountManagementPage() {
-	const { user, updateUserInfo, updatePassword, logout } = useFirestore();
+	const { user, fetchUser, updateUserInfo, updatePassword, logout } = useFirestore();
 
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
@@ -122,6 +122,7 @@ export default function AccountManagementPage() {
 
 		setFile("");
 		setFileName("");
+		fetchUser(email);
 	}
 
 	useEffect(() => {

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { db } from "../utilities/firebase";
-import { query, doc, where, collection, getDoc, updateDoc, getDocs, setDoc, deleteDoc } from "firebase/firestore";
+import { query, doc, where, collection, getDoc, updateDoc, getDocs, setDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import toast from "react-hot-toast";
 
 const FirestoreContext = createContext();
@@ -14,12 +14,12 @@ export function FirestoreProvider({ children }) {
 	const [user, setUser] = useState(null);
 
 	async function fetchUser(email) {
-		const docRef = doc(db, "users", email);
-		const docSnap = await getDoc(docRef);
+		onSnapshot(doc(db, "users", email), (doc) => {
+			if (doc.exists()) {
+				setUser({ ...doc.data(), id: doc.id });
+			}
+		});
 
-		if (docSnap.exists()) {
-			setUser({ ...docSnap.data(), id: docSnap.id });
-		}
 	}
 
 	function logout() {
