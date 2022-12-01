@@ -1,7 +1,7 @@
 import { Fragment, useState } from "react";
 import { Link } from "react-router-dom";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon, Cog6ToothIcon, QuestionMarkCircleIcon, ArrowLeftOnRectangleIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon, Cog6ToothIcon, ArrowLeftOnRectangleIcon } from "@heroicons/react/24/outline";
 
 import { useFirestore } from "../contexts/FirestoreContext";
 
@@ -90,14 +90,6 @@ export default function NavBar() {
 												<p className="grey text-gray-600 m-0 px-2">{user?.email}</p>
 											</div>
 											<div className="py-1">
-												<Menu.Item>
-													{({ active }) => (
-														<Link to="/help" className={classNames(active ? "bg-gray-100" : "", "flex px-4 py-2 text-sm gap-1 text-gray-700 no-underline")}>
-															<QuestionMarkCircleIcon className="block h-5 w-5" />
-															Help
-														</Link>
-													)}
-												</Menu.Item>
 												<Menu.Item>
 													{({ active }) => (
 														<Link to="/account" className={classNames(active ? "bg-gray-100" : "", "flex px-4 py-2 text-sm gap-1 text-gray-700 no-underline")}>
