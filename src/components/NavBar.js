@@ -1,5 +1,5 @@
-import { Fragment, useState } from "react";
-import { Link } from "react-router-dom";
+import { Fragment } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon, Cog6ToothIcon, ArrowLeftOnRectangleIcon } from "@heroicons/react/24/outline";
 
@@ -11,8 +11,7 @@ function classNames(...classes) {
 
 export default function NavBar() {
 	const { user, logout } = useFirestore();
-	// eslint-disable-next-line no-unused-vars
-	const { selected, setSelected } = useState(false);
+	let location = useLocation();
 
 	return (
 		<Disclosure as="nav" className="bg-gray-800">
@@ -45,10 +44,10 @@ export default function NavBar() {
 										<Link
 											to="/"
 											className={classNames(
-												selected ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white",
+												location.pathname === "/" ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white",
 												"px-3 py-2 rounded-md text-sm font-medium no-underline"
 											)}
-											aria-current={selected ? "page" : undefined}
+											aria-current={location.pathname === "/" ? "page" : undefined}
 										>
 											Search
 										</Link>
@@ -56,10 +55,10 @@ export default function NavBar() {
 											<Link
 												to="/administration"
 												className={classNames(
-													selected ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white",
+													location.pathname === "/administration" ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white",
 													"px-3 py-2 rounded-md text-sm font-medium no-underline"
 												)}
-												aria-current={selected ? "page" : undefined}
+												aria-current={location.pathname === "/administration" ? "page" : undefined}
 											>
 												Administration
 											</Link>
@@ -122,10 +121,10 @@ export default function NavBar() {
 								as={Link}
 								to="/"
 								className={classNames(
-									selected ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white",
+									location.pathname === "/" ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white",
 									"block px-3 py-2 rounded-md text-base font-medium no-underline"
 								)}
-								aria-current={selected ? "page" : undefined}
+								aria-current={location.pathname === "/" ? "page" : undefined}
 							>
 								Search
 							</Disclosure.Button>
@@ -134,10 +133,10 @@ export default function NavBar() {
 									as={Link}
 									to="/administration"
 									className={classNames(
-										selected ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white",
+										location.pathname === "/administration" ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white",
 										"block px-3 py-2 rounded-md text-base font-medium no-underline"
 									)}
-									aria-current={selected ? "page" : undefined}
+									aria-current={location.pathname === "/administration" ? "page" : undefined}
 								>
 									Administration
 								</Disclosure.Button>

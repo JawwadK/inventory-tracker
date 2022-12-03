@@ -70,7 +70,9 @@ export default function AddStoreModal({ open, setOpen, store }) {
 
 	function resetModal() {
 		setName("");
+		setPlaceId("");
 		setPlace("");
+		setAddress("");
 		setFile("");
 		setFileName("");
 		setProgress(0);
@@ -84,7 +86,7 @@ export default function AddStoreModal({ open, setOpen, store }) {
 		const querySnapshot = await getDocs(query_);
 		const storeExists = querySnapshot.docs.length > 0;
 
-		if (!store && storeExists) {
+		if (storeExists) {
 			toast.error("Store already exists");
 			return;
 		}
